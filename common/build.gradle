@@ -5,16 +5,6 @@ plugins {
 group 'de.minimichecker'
 version '1.0.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
-
-/*
-shadowJar {
-    relocate 'io.lettuce', 'shadow.io.lettuce'
-}
- */
-
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'

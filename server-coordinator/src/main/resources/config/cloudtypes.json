@@ -1,0 +1,57 @@
+{
+  "Base": {
+    "type": "TEMPLATE",
+    "templatePath": "/Base/",
+    "inheritances": []
+  },
+  "BungeeBase": {
+    "type": "TEMPLATE",
+    "templatePath": "/BungeeBase/",
+    "inheritances": [
+      "Base"
+    ]
+  },
+  "BukkitBase": {
+    "type": "TEMPLATE",
+    "templatePath": "/BukkitBase/",
+    "inheritances": [
+      "Base"
+    ]
+  },
+  "Bungee": {
+    "staticService": false,
+    "type": "BUNGEECORD",
+    "minOnlineServers": 1,
+    "maxOnlineServers": 2,
+    "portStart": 25565,
+    "portEnd": 25566,
+    "memory": 512,
+    "templatePath": "/Bungee/",
+    "inheritances": [
+      "BungeeBase"
+    ],
+    "hosts": [
+      "dev"
+    ],
+    "fallbackPriorities": [
+      "Lobby"
+    ]
+  },
+  "Lobby": {
+    "staticService": false,
+    "permission": null,
+    "type": "BUKKIT",
+    "minOnlineServers": 1,
+    "maxOnlineServers": 2,
+    "portStart": 30000,
+    "portEnd": 35000,
+    "memory": 512,
+    "templatePath": "/Lobby/",
+    "inheritances": [
+      "BukkitBase"
+    ],
+    "hosts": [
+      "dev"
+    ]
+  }
+}

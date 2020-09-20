@@ -2,8 +2,5 @@ plugins {
     id 'java'
 }
 
-group 'de.minimichecker'
+group 'de.blu'
 version '1.0.0-SNAPSHOT'
-
-dependencies {
-}

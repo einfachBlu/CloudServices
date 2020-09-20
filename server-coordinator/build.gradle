@@ -4,11 +4,11 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-group 'de.minimichecker'
+group 'de.blu'
 version '1.0.0-SNAPSHOT'
 
 application {
-    mainClassName = 'de.minimichecker.coordinator.ServerCoordinator'
+    mainClassName = 'de.blu.coordinator.ServerCoordinator'
 }
 
 dependencies {

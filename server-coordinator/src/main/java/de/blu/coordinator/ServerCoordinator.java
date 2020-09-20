@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
@@ -105,6 +106,9 @@ public final class ServerCoordinator {
     @Inject
     private FileRootSetup fileRootSetup;
 
+    @Inject
+    private CloudTypeConfigLoader cloudTypeConfigLoader;
+
     private Logger logger;
 
     @Inject
@@ -150,8 +154,15 @@ public final class ServerCoordinator {
 
         this.getLogger().info("Connected to Redis.");
 
+        try {
+            this.getCloudTypeConfigLoader().initDefaultConfig();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+            return;
+        }
+
         this.getLogger().info("ServerCoordinator is now started.");
-        System.out.println("Test push");
 
         /*
         try {

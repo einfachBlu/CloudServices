@@ -26,7 +26,10 @@
     "portStart": 25565,
     "portEnd": 25566,
     "memory": 512,
+    "priority": 0,
     "templatePath": "/Bungee/",
+    "javaParameters": [],
+    "serverParameters": [],
     "inheritances": [
       "BungeeBase"
     ],
@@ -46,10 +49,13 @@
     "portStart": 30000,
     "portEnd": 35000,
     "memory": 512,
+    "priority": 0,
     "templatePath": "/Lobby/",
     "inheritances": [
       "BukkitBase"
     ],
+    "javaParameters": [],
+    "serverParameters": [],
     "hosts": [
       "dev"
     ]

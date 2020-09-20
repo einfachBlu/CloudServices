@@ -1,12 +1,14 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 group 'de.minimichecker'
 version '1.0.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
+application {
+    mainClassName = 'de.minimichecker.coordinator.ServerCoordinator'
 }
 
 dependencies {
@@ -21,4 +23,25 @@ dependencies {
     implementation 'io.lettuce:lettuce-core:5.2.2.RELEASE'
 
     compileOnly 'commons-io:commons-io:2.5'
+}
+
+shadowJar.doLast {
+    File jarFile = file("${project.buildDir}/libs/${project.name}-${project.version}-all.jar")
+
+    if (!jarFile.exists()) {
+        jarFile = file("${project.buildDir}/libs/${project.name}-${project.version}.jar")
+        if (!jarFile.exists()) {
+            //println "output jarFile doesnt exist, maybe something failed with the build?"
+            return
+        }
+    }
+
+    copy {
+        from jarFile
+        into "${project.rootDir}/output/"
+
+        rename {
+            "server-coordinator.jar"
+        }
+    }
 }

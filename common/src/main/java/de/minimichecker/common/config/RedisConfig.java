@@ -19,20 +19,6 @@ public class RedisConfig {
         this.setProperty("password", "");
     }};
 
-    public void createIfNotExist(File configFile) {
-        if (configFile.exists()) {
-            return;
-        }
-
-        // Create default Config
-        try {
-            configFile.createNewFile();
-            this.getProperties().store(new FileWriter(configFile), "Redis Credentials");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void load(File configFile) {
         // Read Properties of it
         try {
@@ -52,5 +38,28 @@ public class RedisConfig {
 
     public String getPassword() {
         return this.getProperties().getProperty("password");
+    }
+
+    public void setHost(String host) {
+        this.getProperties().setProperty("host", host);
+    }
+
+    public void setPort(int port) {
+        this.getProperties().setProperty("port", String.valueOf(port));
+    }
+
+    public void setPassword(String password) {
+        this.getProperties().setProperty("password", password);
+    }
+
+    public void save(File configFile) {
+        // Read Properties of it
+        configFile.getParentFile().mkdirs();
+
+        try {
+            this.getProperties().store(new FileWriter(configFile), "Redis Credentials");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

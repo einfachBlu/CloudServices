@@ -1,0 +1,9 @@
+plugins {
+    id 'java'
+}
+
+group 'de.minimichecker'
+version '1.0.0-SNAPSHOT'
+
+dependencies {
+}

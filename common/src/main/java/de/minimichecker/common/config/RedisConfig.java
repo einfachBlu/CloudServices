@@ -20,12 +20,13 @@ public class RedisConfig {
     }};
 
     public void createIfNotExist(File configFile) {
-        if (!configFile.exists()) {
+        if (configFile.exists()) {
             return;
         }
 
         // Create default Config
         try {
+            configFile.createNewFile();
             this.getProperties().store(new FileWriter(configFile), "Redis Credentials");
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,5 +40,17 @@ public class RedisConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getHost() {
+        return this.getProperties().getProperty("host");
+    }
+
+    public int getPort() {
+        return Integer.parseInt(this.getProperties().getProperty("port"));
+    }
+
+    public String getPassword() {
+        return this.getProperties().getProperty("password");
     }
 }

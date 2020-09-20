@@ -6,6 +6,15 @@ import java.util.Map;
 public interface RedisConnection {
 
     /**
+     * Set Credentials to connect
+     *
+     * @param host the Host
+     * @param port the port
+     * @param password the password
+     */
+    void init(String host, int port, String password);
+
+    /**
      * Connect to Redis
      */
     void connect();

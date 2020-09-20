@@ -25,7 +25,6 @@ dependencies {
 
     compileOnly 'log4j:log4j:1.2.17'
     compileOnly 'com.google.inject:guice:4.0'
-    compileOnly 'com.datastax.oss:java-driver-core:4.8.0'
     compileOnly 'io.lettuce:lettuce-core:5.2.2.RELEASE'
     implementation 'commons-io:commons-io:2.5'
 }

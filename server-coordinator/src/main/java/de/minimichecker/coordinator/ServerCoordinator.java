@@ -1,13 +1,27 @@
 package de.minimichecker.coordinator;
 
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import de.minimichecker.common.command.CommandRegister;
+import de.minimichecker.common.command.ConsoleInputReader;
+import de.minimichecker.common.config.RedisConfig;
+import de.minimichecker.common.database.redis.RedisConnection;
+import de.minimichecker.common.logging.Logger;
+import de.minimichecker.common.logging.LoggingInitializer;
+import de.minimichecker.common.network.packet.packets.HelloWorldPacket;
+import de.minimichecker.common.network.packet.repository.PacketListenerRepository;
+import de.minimichecker.common.network.packet.sender.PacketSender;
 import de.minimichecker.common.util.LibraryUtils;
 import de.minimichecker.coordinator.module.ModuleSettings;
+import lombok.Getter;
 
 import java.io.File;
 import java.net.URISyntaxException;
 
+@Singleton
+@Getter
 public final class ServerCoordinator {
     public static void main(String[] args) {
         try {
@@ -59,37 +73,70 @@ public final class ServerCoordinator {
         return directory;
     }
 
-    public ServerCoordinator() {
-        System.out.println("Started!");
-        /*
+    @Inject
+    private LoggingInitializer loggingInitializer;
+
+    @Inject
+    private CommandRegister commandRegister;
+
+    @Inject
+    private ConsoleInputReader consoleInputReader;
+
+    @Inject
+    private RedisConnection redisConnection;
+
+    @Inject
+    private RedisConfig redisConfig;
+
+    @Inject
+    private PacketSender packetSender;
+
+    @Inject
+    private PacketListenerRepository packetListenerRepository;
+
+    private Logger logger;
+
+    @Inject
+    private ServerCoordinator(Injector injector) {
+        // Inject global variables
+        injector.injectMembers(this);
+
+        // Set System Parameters
+        System.setProperty("http.agent", "Chrome");
+
+        // Init Logger
+        this.getLoggingInitializer().init(new File(ServerCoordinator.getRootDirectory(), "logs"));
+        this.logger = this.getLoggingInitializer().getLogger();
+
+        // Initialize ConsoleInputReader
+        this.getConsoleInputReader().init();
+
+        // Connect to Redis
+        File configFile = new File(ServerCoordinator.getRootDirectory(), "redis.properties");
+        this.getRedisConfig().createIfNotExist(configFile);
+        this.getRedisConfig().load(configFile);
+
+        this.getRedisConnection().init(this.getRedisConfig().getHost(), this.getRedisConfig().getPort(), this.getRedisConfig().getPassword());
+        this.getRedisConnection().connect();
+        if (!this.getRedisConnection().isConnected()) {
+            this.getLogger().error("Could not connect to Redis! Check your Credentials (~/redis.properties)");
+            return;
+        }
+
+        this.getLogger().info("Connected to Redis.");
+
         HelloWorldPacket helloWorldPacket = new HelloWorldPacket();
         helloWorldPacket.setMessage("HelloWorld2");
 
-        PacketSender packetSender = new PacketSender();
-        PacketListenerRepository packetListenerRepository = new PacketListenerRepository();
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            System.out.println("Incoming Packet (hadCallback=" + hadCallback + "): " + packet.toString());
 
-        packetListenerRepository.registerListener((packet, hadCallback) -> {
-            Packet receivedPacket = packet;
-
-            if (hadCallback) {
-                // Prevent Executing because already handled by callback
-                return;
-            }
+            packet.sendCallback();
         }, "testChannel");
 
-
-        packetSender.sendPacket(helloWorldPacket, "testChannel");
-
-        packetSender.sendPacket(helloWorldPacket, aVoid -> {
-        }, "testChannel");
-
-        packetSender.sendRequestPacket(helloWorldPacket, resultPacket -> {
+        this.getPacketSender().sendRequestPacket(helloWorldPacket, resultPacket -> {
             HelloWorldPacket packet = resultPacket;
+            System.out.println("Packet came back! " + packet.toString());
         }, "testChannel");
-
-        packetSender.sendRequestPacket(helloWorldPacket, resultPacket -> {
-            HelloWorldPacket packet = resultPacket;
-        }, "testChannel");
-         */
     }
 }

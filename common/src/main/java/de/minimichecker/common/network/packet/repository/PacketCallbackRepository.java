@@ -38,4 +38,16 @@ public final class PacketCallbackRepository {
 
         return executedCallbacks;
     }
+
+    public boolean hasCallbacks(UUID uuid) {
+        if (this.getRequestCallbacks().containsKey(uuid)) {
+            return true;
+        }
+
+        if (this.getDoneCallbacks().containsKey(uuid)) {
+            return true;
+        }
+
+        return false;
+    }
 }

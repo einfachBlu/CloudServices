@@ -1,19 +1,19 @@
 {
   "Base": {
     "type": "TEMPLATE",
-    "templatePath": "/Base/",
+    "templatePath": null,
     "inheritances": []
   },
   "BungeeBase": {
     "type": "TEMPLATE",
-    "templatePath": "/BungeeBase/",
+    "templatePath": null,
     "inheritances": [
       "Base"
     ]
   },
   "BukkitBase": {
     "type": "TEMPLATE",
-    "templatePath": "/BukkitBase/",
+    "templatePath": null,
     "inheritances": [
       "Base"
     ]
@@ -27,7 +27,7 @@
     "portEnd": 25566,
     "memory": 512,
     "priority": 0,
-    "templatePath": "/Bungee/",
+    "templatePath": null,
     "javaParameters": [],
     "serverParameters": [],
     "inheritances": [
@@ -50,7 +50,7 @@
     "portEnd": 35000,
     "memory": 512,
     "priority": 0,
-    "templatePath": "/Lobby/",
+    "templatePath": null,
     "inheritances": [
       "BukkitBase"
     ],

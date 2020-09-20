@@ -32,6 +32,8 @@ public final class PacketReceiver {
 
         boolean hadCallback = this.getPacketCallbackRepository().hasCallbacks(packet.getUniqueId());
 
+        packet.executeCallback();
+
         // Call listeners
         for (Map.Entry<PacketListener, Collection<String>> entry : this.getPacketListenerRepository().getPacketListeners().entrySet()) {
             if (!entry.getValue().contains(channel)) {

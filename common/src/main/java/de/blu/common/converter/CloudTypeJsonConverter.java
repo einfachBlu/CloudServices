@@ -30,7 +30,7 @@ public final class CloudTypeJsonConverter {
         }
 
         // TemplatePath
-        cloudType.setTemplatePath(String.valueOf(data.get("templatePath")));
+        cloudType.setTemplatePath((String) data.get("templatePath"));
 
         if (!cloudType.getType().equals(CloudType.Type.TEMPLATE)) {
             boolean staticService = (boolean) data.get("staticService");

@@ -27,6 +27,9 @@ public final class CloudTypeRepository {
     @Inject
     private Logger logger;
 
+    @Setter
+    private String json = "";
+
     public void save() {
         // Clear old CloudTypes
         this.getRedisConnection().removeRecursive("cloudtype");

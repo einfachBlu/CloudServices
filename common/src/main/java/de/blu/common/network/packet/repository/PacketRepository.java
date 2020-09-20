@@ -15,7 +15,7 @@ public final class PacketRepository {
     private Collection<Class<? extends Packet>> packets = new HashSet<>();
 
     public PacketRepository() {
-        this.registerPackets(HelloWorldPacket.class);
+        this.registerPackets(RequestCloudTypesPacket.class);
     }
 
     @SafeVarargs

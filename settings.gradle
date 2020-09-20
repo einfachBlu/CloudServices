@@ -1,7 +1,6 @@
-rootProject.name = 'mini-network'
+rootProject.name = 'cloud-services'
 include 'server-starter'
 include 'common'
-include 'server-deploy'
 include 'server-coordinator'
 include 'server-connector'
 

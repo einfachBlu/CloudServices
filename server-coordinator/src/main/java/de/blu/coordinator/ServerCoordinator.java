@@ -151,6 +151,7 @@ public final class ServerCoordinator {
         this.getLogger().info("Connected to Redis.");
 
         this.getLogger().info("ServerCoordinator is now started.");
+        System.out.println("Test push");
 
         /*
         try {

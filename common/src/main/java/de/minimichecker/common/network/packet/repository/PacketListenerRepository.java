@@ -23,8 +23,7 @@ public final class PacketListenerRepository {
 
     public void registerListener(PacketListener packetListener, String channel) {
         if (!this.getPacketListeners().containsKey(packetListener)) {
-            this.getPacketListeners().put(packetListener, new HashSet<>(Collections.singleton(channel)));
-            return;
+            this.getPacketListeners().put(packetListener, new HashSet<>());
         }
 
         this.getPacketListeners().get(packetListener).add(channel);

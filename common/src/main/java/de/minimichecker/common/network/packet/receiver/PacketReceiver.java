@@ -25,15 +25,12 @@ public final class PacketReceiver {
     private PacketListenerRepository packetListenerRepository;
 
     public void onMessageReceived(String channel, String message) {
-        boolean hadCallback = false;
-
         Packet packet = this.getPacketReader().readPacket(message);
         if (packet == null) {
             return;
         }
 
-        // Call Callbacks
-        hadCallback = this.getPacketCallbackRepository().executeCallback(packet.getUniqueId(), packet);
+        boolean hadCallback = this.getPacketCallbackRepository().hasCallbacks(packet.getUniqueId());
 
         // Call listeners
         for (Map.Entry<PacketListener, Collection<String>> entry : this.getPacketListenerRepository().getPacketListeners().entrySet()) {

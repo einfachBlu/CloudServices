@@ -26,4 +26,13 @@ public class HelloWorldPacket extends Packet {
         this.message = content.get("message");
         this.uuid = UUID.fromString(content.get("uuid"));
     }
+
+    @Override
+    public String toString() {
+        return "HelloWorldPacket{" +
+                "message='" + message + '\'' +
+                ", uuid=" + uuid +
+                ", packetUniqueId=" + this.getUniqueId() +
+                '}';
+    }
 }

@@ -50,32 +50,31 @@ public final class LibraryUtils {
     }
 
     private static void downloadDefaultLibraries() {
-        /*
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/log4j/log4j/1.2.17/log4j-1.2.17.jar", "log4j-1.2.17.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/jline/jline/2.12/jline-2.12.jar", "jline-2.12.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.44/mysql-connector-java-5.1.44.jar", "mysql-connector-java-5.1.44.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.44/mysql-connector-java-5.1.44.jar", "mysql-connector-java-5.1.44.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/jcraft/jsch/0.1.55/jsch-0.1.55.jar", "jsch-0.1.55.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/commons-io/commons-io/2.5/commons-io-2.5.jar", "commons-io-2.5.jar");
         //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar", "commons-lang-2.6.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/github/wolf480pl/jline-log4j2-appender/1.0.0/jline-log4j2-appender-1.0.0.jar", "jline-log4j2-appender-1.0.0.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/biz/paluch/redis/lettuce/4.2.2.Final/lettuce-4.2.2.Final.jar", "lettuce-4.2.2.Final.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/netty/netty-all/4.1.15.Final/netty-all-4.1.15.Final.jar", "netty-all-4.1.15.Final.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/netty/netty-all/4.1.15.Final/netty-all-4.1.15.Final.jar", "netty-all-4.1.15.Final.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/reactivex/rxjava/1.0.4/rxjava-1.0.4.jar", "rxjava-1.0.4.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar", "json-simple-1.1.1.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix/3.1.8/atomix-3.1.8.jar", "atomix-3.1.8.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-primitive/3.1.8/atomix-primitive-3.1.8.jar", "atomix-primitive-3.1.8.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-cluster/3.1.8/atomix-cluster-3.1.8.jar", "atomix-cluster-3.1.8.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-gossip/3.1.8/atomix-gossip-3.1.8.jar", "atomix-gossip-3.1.8.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-utils/3.1.8/atomix-utils-3.1.8.jar", "atomix-utils-3.1.8.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix/3.1.8/atomix-3.1.8.jar", "atomix-3.1.8.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-primitive/3.1.8/atomix-primitive-3.1.8.jar", "atomix-primitive-3.1.8.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-cluster/3.1.8/atomix-cluster-3.1.8.jar", "atomix-cluster-3.1.8.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-gossip/3.1.8/atomix-gossip-3.1.8.jar", "atomix-gossip-3.1.8.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-utils/3.1.8/atomix-utils-3.1.8.jar", "atomix-utils-3.1.8.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar", "slf4j-api-1.7.30.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/slf4j/slf4j-nop/1.7.30/slf4j-nop-1.7.30.jar", "slf4j-nop-1.7.30.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/github/classgraph/classgraph/4.8.87/classgraph-4.8.87.jar", "classgraph-4.8.87.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/typesafe/config/1.2.1/config-1.2.1.jar", "config-1.2.1.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/esotericsoftware/kryo/3.0.0/kryo-3.0.0.jar", "kryo-3.0.0.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar", "objenesis-2.1.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar", "minlog-1.2.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/esotericsoftware/kryo/3.0.0/kryo-3.0.0.jar", "kryo-3.0.0.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar", "objenesis-2.1.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar", "minlog-1.2.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar", "commons-lang3-3.8.1.jar");
-        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-primary-backup/3.1.8/atomix-primary-backup-3.1.8.jar", "atomix-primary-backup-3.1.8.jar");
+        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-primary-backup/3.1.8/atomix-primary-backup-3.1.8.jar", "atomix-primary-backup-3.1.8.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar", "commons-math3-3.6.1.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/yaml/snakeyaml/1.17/snakeyaml-1.17.jar", "snakeyaml-1.17.jar");
         //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/google/guava/guava/23.0/guava-23.0.jar", "guava-23.0.jar");

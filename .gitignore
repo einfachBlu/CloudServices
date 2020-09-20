@@ -1,0 +1,53 @@
+.gradle/
+/*/**/modules/*.jar
+/*/**/plugins/*.jar
+
+# Only for this Project
+${project.parent.basedir}
+output/
+
+# eclipse
+.classpath
+.project
+.settings/
+
+# netbeans
+nbproject/
+nbactions.xml
+
+# maven
+target/
+javadoc/
+dependency-reduced-pom.xml
+build.xml
+
+# vim
+.*.sw[a-p]
+
+# various other potential build files
+build/
+bin/
+dist/
+manifest.mf
+
+# mac filesystem dust
+.DS_Store/
+
+# intellij
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# other files
+*.log*
+
+# package files
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# others
+output/

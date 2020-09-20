@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+}
+
+group 'de.minimichecker'
+version '1.0.0-SNAPSHOT'
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+jar {
+    duplicatesStrategy = 'EXCLUDE'
+}
+
+subprojects {
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+        maven { url = 'http://maven.elmakers.com/repository/' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'http://repo.dmulloy2.net/nexus/repository/public/' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://repo.md-5.net/content/repositories/snapshots/' }
+    }
+}

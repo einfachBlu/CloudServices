@@ -79,6 +79,7 @@ public final class RedisConnectionProvider implements RedisConnection {
             this.redisCommandsPubsubListener = null;
             this.redisCommandsPubsubPublish = null;
             //System.out.println("Error while connecting to Redis: " + e.getMessage());
+            return;
         }
     }
 

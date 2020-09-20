@@ -1,6 +1,47 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 group 'de.blu'
 version '1.0.0-SNAPSHOT'
+
+application {
+    mainClassName = 'de.blu.starter.ServerStarter'
+}
+
+dependencies {
+    implementation project(':common')
+
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+    implementation 'com.google.inject:guice:4.0'
+    implementation 'jline:jline:2.11'
+    implementation 'org.apache.logging.log4j:log4j-core:2.0.2'
+    implementation 'io.lettuce:lettuce-core:5.2.2.RELEASE'
+
+    compileOnly 'commons-io:commons-io:2.5'
+}
+
+shadowJar.doLast {
+    File jarFile = file("${project.buildDir}/libs/${project.name}-${project.version}-all.jar")
+
+    if (!jarFile.exists()) {
+        jarFile = file("${project.buildDir}/libs/${project.name}-${project.version}.jar")
+        if (!jarFile.exists()) {
+            //println "output jarFile doesnt exist, maybe something failed with the build?"
+            return
+        }
+    }
+
+    copy {
+        from jarFile
+        into "${project.rootDir}/output/"
+
+        rename {
+            "server-starter.jar"
+        }
+    }
+}

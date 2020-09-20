@@ -38,9 +38,11 @@ public final class CloudTypeConfigLoader {
     private File configFile;
 
     public void initDefaultConfig() throws Exception {
-        this.configFile = new File(this.getFileRootConfig().getRootFileDirectory(), "Config/cloudtypes.json");
+        this.configFile = new File(this.getFileRootConfig().getRootFileDirectory(), "Configs/cloudtypes.json");
 
-        this.saveDefaultConfig();
+        if (!this.getConfigFile().exists()) {
+            this.saveDefaultConfig();
+        }
         this.loadConfig();
 
         this.getLogger().info("Loaded CloudTypes: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));
@@ -65,6 +67,17 @@ public final class CloudTypeConfigLoader {
 
     public void loadConfig() throws Exception {
         JSONObject jsonObject = (JSONObject) JSONValue.parse(new FileReader(this.getConfigFile()));
+
+        this.loadFromJson(jsonObject.toJSONString());
+    }
+
+    public void loadFromJson(String json) {
+        if (json.equalsIgnoreCase("")) {
+            return;
+        }
+
+        this.getCloudTypeRepository().setJson(json);
+        JSONObject jsonObject = (JSONObject) JSONValue.parse(json);
 
         Collection<CloudType> cloudTypes = new ArrayList<>();
         for (Object cloudTypeName : jsonObject.keySet()) {

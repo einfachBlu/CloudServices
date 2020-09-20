@@ -20,7 +20,7 @@ public class CloudType {
     private int memory = 0;
     private String permission = null;
     private boolean staticService = false;
-    private String templatePath = "/" + this.name + "/";
+    private String templatePath = null;
     private Collection<String> hosts = new ArrayList<>();
     private Collection<String> inheritances = new ArrayList<>();
     private Collection<String> proxyFallbackPriorities = new ArrayList<>();

@@ -5,7 +5,7 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import de.blu.common.network.packet.packets.Packet;
 import de.blu.common.network.packet.repository.PacketRepository;
-import de.blu.common.util.ApplicationIdentifierProvider;
+import de.blu.common.service.SelfServiceInformation;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public final class PacketReader {
     private Injector injector;
 
     @Inject
-    private ApplicationIdentifierProvider applicationIdentifierProvider;
+    private SelfServiceInformation selfServiceInformation;
 
     public Packet readPacket(String message) {
         Map<String, String> data = new HashMap<>();
@@ -37,9 +37,9 @@ public final class PacketReader {
             }
 
             if (key.equalsIgnoreCase("senderIdentifier")) {
-                if (value.equalsIgnoreCase(this.getApplicationIdentifierProvider().getUniqueId().toString())) {
+                if (value.equalsIgnoreCase(this.getSelfServiceInformation().getIdentifier().toString())) {
                     // Stop executing here because we dont want to receive redis calls from our own
-                    return null;
+                    //return null;
                 }
             }
 

@@ -193,6 +193,8 @@ public final class ServerCoordinator {
 
         this.getServiceKeepAlive().init();
 
+        this.getCommandRegister().registerRecursive("de.blu.coordinator.command");
+
         this.getLogger().info("ServerCoordinator is now started.");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

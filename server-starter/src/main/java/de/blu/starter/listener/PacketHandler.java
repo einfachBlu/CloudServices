@@ -55,5 +55,9 @@ public final class PacketHandler {
             this.getLogger().info("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
         }, "ServiceDisconnected");
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            this.getCloudTypeRequester().requestCloudTypes();
+        }, "CloudCoordinatorReloaded");
     }
 }

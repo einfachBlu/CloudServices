@@ -300,7 +300,7 @@ public final class RedisConnectionProvider implements RedisConnection {
         }
 
         if (!this.channelExists(channel)) {
-            System.out.println("Redis PubSub Channel " + channel + " doesnt exist!");
+            //System.out.println("Redis PubSub Channel " + channel + " doesnt exist!");
             return false;
         }
 

@@ -6,6 +6,7 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.event.connection.ConnectedEvent;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
@@ -292,17 +293,18 @@ public final class RedisConnectionProvider implements RedisConnection {
     }
 
     @Override
-    public void publish(String channel, String message) {
+    public boolean publish(String channel, String message) {
         if (!this.isConnected()) {
             new Exception("Redis is not connected!").printStackTrace();
-            return;
+            return false;
         }
 
         if (!this.channelExists(channel)) {
             System.out.println("Redis PubSub Channel " + channel + " doesnt exist!");
-            return;
+            return false;
         }
 
         this.getRedisCommandsPubsubPublish().publish(channel, message);
+        return true;
     }
 }

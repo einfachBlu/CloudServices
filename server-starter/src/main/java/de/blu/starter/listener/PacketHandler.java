@@ -9,6 +9,8 @@ import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
 import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.ServiceRepository;
+import de.blu.common.service.Services;
+import de.blu.starter.cloudtype.CloudTypeRequester;
 import lombok.Getter;
 
 @Singleton
@@ -28,6 +30,9 @@ public final class PacketHandler {
     private ServiceRepository serviceRepository;
 
     @Inject
+    private CloudTypeRequester cloudTypeRequester;
+
+    @Inject
     private Logger logger;
 
     public void registerAll() {
@@ -39,6 +44,10 @@ public final class PacketHandler {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
             this.getLogger().info("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
+
+            if (Services.SERVER_COORDINATOR.equals(serviceConnectedPacket.getServiceInformation().getService())) {
+                this.getCloudTypeRequester().requestCloudTypes();
+            }
         }, "ServiceConnected");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {

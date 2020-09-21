@@ -28,34 +28,34 @@ public final class PacketSender {
     @Inject
     private RedisConnection redisConnection;
 
-    public <T extends Packet> void sendRequestPacket(T packet, Consumer<T> callback, String channel) {
+    public <T extends Packet> boolean sendRequestPacket(T packet, Consumer<T> callback, String channel) {
         Map<String, String> data = new HashMap<>();
         data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
 
         this.getPacketCallbackRepository().addRequestCallback(packet.getUniqueId(), callback);
 
         data = this.getPacketWriter().writePacket(packet, data);
-        this.send(data, channel);
+        return this.send(data, channel);
     }
 
-    public void sendPacket(Packet packet, Consumer<Void> doneCallback, String channel) {
+    public boolean sendPacket(Packet packet, Consumer<Void> doneCallback, String channel) {
         Map<String, String> data = new HashMap<>();
         data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
 
         this.getPacketCallbackRepository().addDoneCallback(packet.getUniqueId(), doneCallback);
 
         data = this.getPacketWriter().writePacket(packet, data);
-        this.send(data, channel);
+        return this.send(data, channel);
     }
 
-    public void sendPacket(Packet packet, String channel) {
+    public boolean sendPacket(Packet packet, String channel) {
         Map<String, String> data = new HashMap<>();
         data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
         data = this.getPacketWriter().writePacket(packet, data);
-        this.send(data, channel);
+        return this.send(data, channel);
     }
 
-    private void send(Map<String, String> data, String channel) {
+    private boolean send(Map<String, String> data, String channel) {
         String message = "";
 
         for (Map.Entry<String, String> entry : data.entrySet()) {
@@ -67,6 +67,6 @@ public final class PacketSender {
         }
 
         //System.out.println("Send Data: " + message);
-        this.getRedisConnection().publish(channel, message);
+        return this.getRedisConnection().publish(channel, message);
     }
 }

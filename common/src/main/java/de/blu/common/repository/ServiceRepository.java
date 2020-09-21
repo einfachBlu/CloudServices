@@ -8,15 +8,18 @@ import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceInformation;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Singleton
 @Getter
 public final class ServiceRepository {
 
-    public static final int REDIS_CACHE_TIME = 5;
+    public static final int REDIS_CACHE_TIME = 10000;
+    public static final long KEEP_ALIVE_TIME = 8000;
 
     @Inject
     private RedisConnection redisConnection;
@@ -35,5 +38,11 @@ public final class ServiceRepository {
 
     public void removeService(UUID serviceIdentifier) {
         this.getServices().remove(serviceIdentifier);
+    }
+
+    public Collection<ServiceInformation> getServicesByName(String name) {
+        return this.getServices().values().stream()
+                .filter(serviceInformation -> serviceInformation.getName().equalsIgnoreCase(name))
+                .collect(Collectors.toList());
     }
 }

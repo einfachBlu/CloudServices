@@ -5,7 +5,7 @@ import com.google.inject.Singleton;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.network.packet.packets.Packet;
 import de.blu.common.network.packet.repository.PacketCallbackRepository;
-import de.blu.common.util.ApplicationIdentifierProvider;
+import de.blu.common.service.SelfServiceInformation;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public final class PacketSender {
     private PacketWriter packetWriter;
 
     @Inject
-    private ApplicationIdentifierProvider applicationIdentifierProvider;
+    private SelfServiceInformation selfServiceInformation;
 
     @Inject
     private PacketCallbackRepository packetCallbackRepository;
@@ -30,7 +30,7 @@ public final class PacketSender {
 
     public <T extends Packet> void sendRequestPacket(T packet, Consumer<T> callback, String channel) {
         Map<String, String> data = new HashMap<>();
-        data.put("senderIdentifier", this.getApplicationIdentifierProvider().getUniqueId().toString());
+        data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
 
         this.getPacketCallbackRepository().addRequestCallback(packet.getUniqueId(), callback);
 
@@ -40,7 +40,7 @@ public final class PacketSender {
 
     public void sendPacket(Packet packet, Consumer<Void> doneCallback, String channel) {
         Map<String, String> data = new HashMap<>();
-        data.put("senderIdentifier", this.getApplicationIdentifierProvider().getUniqueId().toString());
+        data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
 
         this.getPacketCallbackRepository().addDoneCallback(packet.getUniqueId(), doneCallback);
 
@@ -50,7 +50,7 @@ public final class PacketSender {
 
     public void sendPacket(Packet packet, String channel) {
         Map<String, String> data = new HashMap<>();
-        data.put("senderIdentifier", this.getApplicationIdentifierProvider().getUniqueId().toString());
+        data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
         data = this.getPacketWriter().writePacket(packet, data);
         this.send(data, channel);
     }

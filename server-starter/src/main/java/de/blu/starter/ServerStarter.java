@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import de.blu.common.broadcast.ServiceConnectorBroadcast;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
@@ -13,12 +12,13 @@ import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
 import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
-import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
+import de.blu.common.service.SelfServiceInformation;
+import de.blu.common.service.ServiceConnectorBroadcast;
+import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
-import de.blu.common.util.ApplicationIdentifierProvider;
 import de.blu.common.util.LibraryUtils;
 import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
@@ -112,13 +112,16 @@ public final class ServerStarter {
     private FileRootSetup fileRootSetup;
 
     @Inject
-    private ApplicationIdentifierProvider applicationIdentifierProvider;
+    private SelfServiceInformation selfServiceInformation;
 
     @Inject
     private PacketHandler packetHandler;
 
     @Inject
     private ServiceConnectorBroadcast serviceConnectorBroadcast;
+
+    @Inject
+    private ServiceKeepAlive serviceKeepAlive;
 
     private Logger logger;
 
@@ -129,6 +132,9 @@ public final class ServerStarter {
 
         // Set System Parameters
         System.setProperty("http.agent", "Chrome");
+
+        // Set ServiceName
+        this.getSelfServiceInformation().setName("server-starter");
 
         // Init Logger
         this.getLoggingInitializer().init(new File(ServerStarter.getRootDirectory(), "logs"));
@@ -169,6 +175,8 @@ public final class ServerStarter {
 
         // TODO: Check if Service "server-coordinator" is online, otherwise request after the service is back online
 
+        this.getServiceKeepAlive().init();
+
         // Request CloudTypes
         RequestCloudTypesPacket requestCloudTypesPacket = injector.getInstance(RequestCloudTypesPacket.class);
         this.getPacketSender().sendRequestPacket(requestCloudTypesPacket, requestCloudTypesPacket1 -> {
@@ -176,11 +184,5 @@ public final class ServerStarter {
         }, "RequestCloudTypes");
 
         this.getLogger().info("ServerStarter is now started.");
-
-        String serviceName = "server-starter";
-        this.getServiceConnectorBroadcast().broadcastConnect(serviceName);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            this.getServiceConnectorBroadcast().broadcastDisconnect(serviceName);
-        }));
     }
 }

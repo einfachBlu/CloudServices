@@ -1,4 +1,4 @@
-package de.blu.common.broadcast;
+package de.blu.common.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
 import de.blu.common.network.packet.sender.PacketSender;
-import de.blu.common.util.ApplicationIdentifierProvider;
 import lombok.Getter;
 
 @Singleton
@@ -17,22 +16,26 @@ public final class ServiceConnectorBroadcast {
     private Injector injector;
 
     @Inject
-    private ApplicationIdentifierProvider applicationIdentifierProvider;
+    private SelfServiceInformation selfServiceInformation;
 
     @Inject
     private PacketSender packetSender;
 
-    public void broadcastConnect(String serviceName){
+    public void broadcastConnect() {
         ServiceConnectedPacket serviceConnectedPacket = this.getInjector().getInstance(ServiceConnectedPacket.class);
-        serviceConnectedPacket.setServiceName(serviceName);
-        serviceConnectedPacket.setServiceIdentifier(this.getApplicationIdentifierProvider().getUniqueId());
+        serviceConnectedPacket.setServiceInformation(this.getSelfServiceInformation());
         this.getPacketSender().sendPacket(serviceConnectedPacket, "ServiceConnected");
     }
 
-    public void broadcastDisconnect(String serviceName){
+    public void broadcastDisconnect() {
         ServiceDisconnectedPacket serviceDisconnectedPacket = this.getInjector().getInstance(ServiceDisconnectedPacket.class);
-        serviceDisconnectedPacket.setServiceName(serviceName);
-        serviceDisconnectedPacket.setServiceIdentifier(this.getApplicationIdentifierProvider().getUniqueId());
+        serviceDisconnectedPacket.setServiceInformation(this.getSelfServiceInformation());
+        this.getPacketSender().sendPacket(serviceDisconnectedPacket, "ServiceDisconnected");
+    }
+
+    public void broadcastDisconnect(ServiceInformation targetServiceInformation) {
+        ServiceDisconnectedPacket serviceDisconnectedPacket = this.getInjector().getInstance(ServiceDisconnectedPacket.class);
+        serviceDisconnectedPacket.setServiceInformation(targetServiceInformation);
         this.getPacketSender().sendPacket(serviceDisconnectedPacket, "ServiceDisconnected");
     }
 }

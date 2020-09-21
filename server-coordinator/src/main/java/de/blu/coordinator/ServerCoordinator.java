@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import de.blu.common.broadcast.ServiceConnectorBroadcast;
 import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
@@ -14,12 +13,12 @@ import de.blu.common.data.CloudType;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
-import de.blu.common.network.packet.packets.ServiceConnectedPacket;
-import de.blu.common.network.packet.sender.PacketSender;
 import de.blu.common.repository.CloudTypeRepository;
+import de.blu.common.service.SelfServiceInformation;
+import de.blu.common.service.ServiceConnectorBroadcast;
+import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
-import de.blu.common.util.ApplicationIdentifierProvider;
 import de.blu.common.util.LibraryUtils;
 import de.blu.coordinator.listener.PacketHandler;
 import de.blu.coordinator.module.ModuleSettings;
@@ -115,7 +114,13 @@ public final class ServerCoordinator {
     private PacketHandler packetHandler;
 
     @Inject
+    private SelfServiceInformation selfServiceInformation;
+
+    @Inject
     private ServiceConnectorBroadcast serviceConnectorBroadcast;
+
+    @Inject
+    private ServiceKeepAlive serviceKeepAlive;
 
     private Logger logger;
 
@@ -126,6 +131,9 @@ public final class ServerCoordinator {
 
         // Set System Parameters
         System.setProperty("http.agent", "Chrome");
+
+        // Set ServiceName
+        this.getSelfServiceInformation().setName("server-coordinator");
 
         // Init Logger
         this.getLoggingInitializer().init(new File(ServerCoordinator.getRootDirectory(), "logs"));
@@ -183,13 +191,9 @@ public final class ServerCoordinator {
             return;
         }
 
-        this.getLogger().info("ServerCoordinator is now started.");
+        this.getServiceKeepAlive().init();
 
-        String serviceName = "server-coordinator";
-        this.getServiceConnectorBroadcast().broadcastConnect(serviceName);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            this.getServiceConnectorBroadcast().broadcastDisconnect(serviceName);
-        }));
+        this.getLogger().info("ServerCoordinator is now started.");
 
         /*
         System.out.println("CloudTypes in Repository: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));

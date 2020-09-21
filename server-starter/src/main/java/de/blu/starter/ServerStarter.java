@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import de.blu.common.broadcast.ServiceConnectorBroadcast;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
@@ -12,11 +13,14 @@ import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
 import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
+import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
+import de.blu.common.util.ApplicationIdentifierProvider;
 import de.blu.common.util.LibraryUtils;
+import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
 import lombok.Getter;
 
@@ -107,6 +111,15 @@ public final class ServerStarter {
     @Inject
     private FileRootSetup fileRootSetup;
 
+    @Inject
+    private ApplicationIdentifierProvider applicationIdentifierProvider;
+
+    @Inject
+    private PacketHandler packetHandler;
+
+    @Inject
+    private ServiceConnectorBroadcast serviceConnectorBroadcast;
+
     private Logger logger;
 
     @Inject
@@ -152,9 +165,7 @@ public final class ServerStarter {
 
         this.getLogger().info("Connected to Redis.");
 
-        // Register default for Callbacks
-        this.getPacketListenerRepository().registerListener((channel, message) -> {
-        }, "CallbackChannel");
+        this.getPacketHandler().registerAll();
 
         // TODO: Check if Service "server-coordinator" is online, otherwise request after the service is back online
 
@@ -166,35 +177,10 @@ public final class ServerStarter {
 
         this.getLogger().info("ServerStarter is now started.");
 
-        /*
-        System.out.println("CloudTypes in Repository: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));
-
-
-        RequestCloudTypesPacket requestCloudTypesPacket = injector.getInstance(RequestCloudTypesPacket.class);
-        this.getPacketSender().sendRequestPacket(requestCloudTypesPacket, requestCloudTypesPacket1 -> {
-            System.out.println("Packet came back!");
-            System.out.println("CloudTypes received: " + Arrays.toString(requestCloudTypesPacket.getCloudTypes().toArray()));
-        }, "RequestCloudTypes");
-
-        try {
-            this.getLogger().info("Hostname=" + InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        HelloWorldPacket helloWorldPacket = new HelloWorldPacket();
-        helloWorldPacket.setMessage("HelloWorld2");
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            System.out.println("Incoming Packet (hadCallback=" + hadCallback + "): " + packet.toString());
-
-            packet.sendCallback();
-        }, "testChannel");
-
-        this.getPacketSender().sendRequestPacket(helloWorldPacket, resultPacket -> {
-            HelloWorldPacket packet = resultPacket;
-            System.out.println("Packet came back! " + packet.toString());
-        }, "testChannel");
-        */
+        String serviceName = "server-starter";
+        this.getServiceConnectorBroadcast().broadcastConnect(serviceName);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            this.getServiceConnectorBroadcast().broadcastDisconnect(serviceName);
+        }));
     }
 }

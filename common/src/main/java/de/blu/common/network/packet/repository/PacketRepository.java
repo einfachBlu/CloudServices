@@ -16,6 +16,8 @@ public final class PacketRepository {
 
     public PacketRepository() {
         this.registerPackets(RequestCloudTypesPacket.class);
+        this.registerPackets(ServiceConnectedPacket.class);
+        this.registerPackets(ServiceDisconnectedPacket.class);
     }
 
     @SafeVarargs

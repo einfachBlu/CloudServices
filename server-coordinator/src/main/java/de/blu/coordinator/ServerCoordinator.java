@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import de.blu.common.broadcast.ServiceConnectorBroadcast;
 import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
@@ -13,13 +14,14 @@ import de.blu.common.data.CloudType;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
-import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
-import de.blu.common.network.packet.repository.PacketListenerRepository;
+import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.sender.PacketSender;
 import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
+import de.blu.common.util.ApplicationIdentifierProvider;
 import de.blu.common.util.LibraryUtils;
+import de.blu.coordinator.listener.PacketHandler;
 import de.blu.coordinator.module.ModuleSettings;
 import lombok.Getter;
 
@@ -95,12 +97,6 @@ public final class ServerCoordinator {
     private RedisConfig redisConfig;
 
     @Inject
-    private PacketSender packetSender;
-
-    @Inject
-    private PacketListenerRepository packetListenerRepository;
-
-    @Inject
     private RedisCredentialsSetup redisCredentialsSetup;
 
     @Inject
@@ -114,6 +110,12 @@ public final class ServerCoordinator {
 
     @Inject
     private CloudTypeRepository cloudTypeRepository;
+
+    @Inject
+    private PacketHandler packetHandler;
+
+    @Inject
+    private ServiceConnectorBroadcast serviceConnectorBroadcast;
 
     private Logger logger;
 
@@ -160,9 +162,7 @@ public final class ServerCoordinator {
 
         this.getLogger().info("Connected to Redis.");
 
-        // Register default for Callbacks
-        this.getPacketListenerRepository().registerListener((channel, message) -> {
-        }, "CallbackChannel");
+        this.getPacketHandler().registerAll();
 
         try {
             // Load CloudTypes
@@ -183,14 +183,13 @@ public final class ServerCoordinator {
             return;
         }
 
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            if (packet instanceof RequestCloudTypesPacket) {
-                ((RequestCloudTypesPacket) packet).setCloudTypes(this.getCloudTypeRepository().getCloudTypes());
-                packet.sendBack();
-            }
-        }, "RequestCloudTypes");
-
         this.getLogger().info("ServerCoordinator is now started.");
+
+        String serviceName = "server-coordinator";
+        this.getServiceConnectorBroadcast().broadcastConnect(serviceName);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            this.getServiceConnectorBroadcast().broadcastDisconnect(serviceName);
+        }));
 
         /*
         System.out.println("CloudTypes in Repository: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));

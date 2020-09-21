@@ -11,22 +11,22 @@ import de.blu.common.config.RedisConfig;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
-import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
+import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceConnectorBroadcast;
 import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
+import de.blu.starter.cloudtype.CloudTypeRequester;
 import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
 import lombok.Getter;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 
 @Singleton
 @Getter
@@ -123,6 +123,12 @@ public final class ServerStarter {
     @Inject
     private ServiceKeepAlive serviceKeepAlive;
 
+    @Inject
+    private ServiceRepository serviceRepository;
+
+    @Inject
+    private CloudTypeRequester cloudTypeRequester;
+
     private Logger logger;
 
     @Inject
@@ -172,17 +178,22 @@ public final class ServerStarter {
         this.getLogger().info("Connected to Redis.");
 
         this.getPacketHandler().registerAll();
-
-        // TODO: Check if Service "server-coordinator" is online, otherwise request after the service is back online
-
         this.getServiceKeepAlive().init();
 
-        // Request CloudTypes
-        RequestCloudTypesPacket requestCloudTypesPacket = injector.getInstance(RequestCloudTypesPacket.class);
-        this.getPacketSender().sendRequestPacket(requestCloudTypesPacket, requestCloudTypesPacket1 -> {
-            System.out.println("CloudTypes received from server-coordinator: " + Arrays.toString(requestCloudTypesPacket1.getCloudTypes().toArray()));
-        }, "RequestCloudTypes");
+        this.getCloudTypeRequester().requestCloudTypes();
 
         this.getLogger().info("ServerStarter is now started.");
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Thread.sleep(200);
+                System.out.println("Shutting down ...");
+                //some cleaning up code...
+                this.getServiceConnectorBroadcast().broadcastDisconnect();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+            }
+        }));
     }
 }

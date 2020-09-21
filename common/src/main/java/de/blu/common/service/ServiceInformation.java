@@ -17,4 +17,14 @@ public class ServiceInformation {
 
         return serviceInformation.getIdentifier().equals(this.getIdentifier());
     }
+
+    public Services getService() {
+        if (Services.SERVER_COORDINATOR.getServiceName().equalsIgnoreCase(this.getName())) {
+            return Services.SERVER_COORDINATOR;
+        } else if (Services.SERVER_STARTER.getServiceName().equalsIgnoreCase(this.getName())) {
+            return Services.SERVER_STARTER;
+        }
+
+        return null;
+    }
 }

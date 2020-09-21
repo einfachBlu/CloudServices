@@ -65,11 +65,13 @@ public final class ServiceKeepAlive {
     }
 
     public void startTimer() {
-        long time = TimeUnit.SECONDS.toMillis((ServiceRepository.REDIS_CACHE_TIME - 2));
+        long time = ServiceRepository.KEEP_ALIVE_TIME;
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
+                long time = System.currentTimeMillis();
                 ServiceKeepAlive.this.handleTimerRun();
+                //System.out.println("Needed Time for KeepAlive Check: " + (System.currentTimeMillis() - time) + "ms");
             }
         }, 0, time);
     }
@@ -77,10 +79,10 @@ public final class ServiceKeepAlive {
     private void handleTimerRun() {
         this.update();
 
-        Collection<ServiceInformation> services = this.getServiceRepository().getServices().values();
+        Collection<ServiceInformation> services = new ArrayList<>(this.getServiceRepository().getServices().values());
 
         for (ServiceInformation serviceInformation : services) {
-            System.out.println("&bCheck for KeepAlive: " + serviceInformation.getIdentifier().toString());
+            //System.out.println("&bCheck for KeepAlive: " + serviceInformation.getIdentifier().toString());
             if (ServiceKeepAlive.this.getRedisConnection().contains("service." + serviceInformation.getIdentifier().toString())) {
                 continue;
             }
@@ -90,7 +92,7 @@ public final class ServiceKeepAlive {
     }
 
     public void update() {
-        this.getRedisConnection().set("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".name", this.getSelfServiceInformation().getName(), ServiceRepository.REDIS_CACHE_TIME);
-        this.getRedisConnection().set("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".identifier", this.getSelfServiceInformation().getIdentifier().toString(), ServiceRepository.REDIS_CACHE_TIME);
+        this.getRedisConnection().set("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".name", this.getSelfServiceInformation().getName(), (int) TimeUnit.MILLISECONDS.toSeconds(ServiceRepository.REDIS_CACHE_TIME));
+        this.getRedisConnection().set("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".identifier", this.getSelfServiceInformation().getIdentifier().toString(), (int) TimeUnit.MILLISECONDS.toSeconds(ServiceRepository.REDIS_CACHE_TIME));
     }
 }

@@ -195,44 +195,16 @@ public final class ServerCoordinator {
 
         this.getLogger().info("ServerCoordinator is now started.");
 
-        /*
-        System.out.println("CloudTypes in Repository: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            System.out.println("Incoming Packet: " + packet.getClass().getSimpleName());
-            if (hadCallback) {
-                return;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Thread.sleep(200);
+                System.out.println("Shutting down ...");
+                //some cleaning up code...
+                this.getServiceConnectorBroadcast().broadcastDisconnect();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
             }
-
-            System.out.println("Sending back...");
-            packet.sendBack();
-        }, "RequestCloudTypes");
-
-        RequestCloudTypesPacket requestCloudTypesPacket = injector.getInstance(RequestCloudTypesPacket.class);
-        this.getPacketSender().sendRequestPacket(requestCloudTypesPacket, requestCloudTypesPacket1 -> {
-            System.out.println("Packet came back!");
-            System.out.println("CloudTypes received: " + Arrays.toString(requestCloudTypesPacket.getCloudTypes().toArray()));
-        }, "RequestCloudTypes");
-
-        try {
-            this.getLogger().info("Hostname=" + InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        HelloWorldPacket helloWorldPacket = new HelloWorldPacket();
-        helloWorldPacket.setMessage("HelloWorld2");
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            System.out.println("Incoming Packet (hadCallback=" + hadCallback + "): " + packet.toString());
-
-            packet.sendCallback();
-        }, "testChannel");
-
-        this.getPacketSender().sendRequestPacket(helloWorldPacket, resultPacket -> {
-            HelloWorldPacket packet = resultPacket;
-            System.out.println("Packet came back! " + packet.toString());
-        }, "testChannel");
-        */
+        }));
     }
 }

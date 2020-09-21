@@ -127,7 +127,7 @@ public interface RedisConnection {
      * @param channel the channel
      * @param message the message
      */
-    void publish(String channel, String message);
+    boolean publish(String channel, String message);
 
     /**
      * Check if a Channel was subscribed by any Application

@@ -16,7 +16,7 @@ public final class CloudTypePrinter {
     private CloudTypeRepository cloudTypeRepository;
 
     public void printAll() {
-        System.out.println("&eCloudTypes:");
+        System.out.println("&eCloudTypes (&c" + this.getCloudTypeRepository().getCloudTypes().size() + "&e):");
         System.out.println("");
         for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
             this.print(cloudType);

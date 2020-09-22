@@ -26,7 +26,7 @@
     "portStart": 25565,
     "portEnd": 25566,
     "memory": 512,
-    "priority": 0,
+    "priority": 5,
     "templatePath": null,
     "javaParameters": [],
     "serverParameters": [],
@@ -49,7 +49,7 @@
     "portStart": 30000,
     "portEnd": 35000,
     "memory": 512,
-    "priority": 0,
+    "priority": 10,
     "templatePath": null,
     "inheritances": [
       "BukkitBase"

@@ -3,6 +3,7 @@ package de.blu.coordinator.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.data.CloudType;
+import de.blu.common.data.GameServerInformation;
 import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
@@ -37,6 +38,9 @@ public final class CheckForServers {
 
     @Inject
     private GameServerRepository gameServerRepository;
+
+    @Inject
+    private GameServerFactory gameServerFactory;
 
     public void startTimer() {
         new Timer().schedule(new TimerTask() {
@@ -93,9 +97,16 @@ public final class CheckForServers {
         // Get best ServerStarter Service
         CloudType cloudType = targetCloudType;
         this.getServerStarterReceiver().getBestServerStarter(targetCloudType, bestServerStarter -> {
-            System.out.println("&bTry to Start Server of CloudType " + cloudType.getName() + " on ServerStarter: " + bestServerStarter.getIdentifier().toString());
+            //System.out.println("&bTry to Start Server of CloudType " + cloudType.getName() + " on ServerStarter: " + bestServerStarter.getIdentifier().toString());
 
-            // TODO: Create GameServerData for $targetCloudType
+            GameServerInformation gameServerInformation = this.getGameServerFactory().create(cloudType, bestServerStarter);
+            if (gameServerInformation == null) {
+                return;
+            }
+
+            System.out.println("ServerStart Request for &e" + gameServerInformation.getName() +
+                    "&r to ServerStarter &e" + bestServerStarter.getIdentifier().toString());
+
             // TODO: Request to start a CloudType it on $bestServerStarter
         });
     }

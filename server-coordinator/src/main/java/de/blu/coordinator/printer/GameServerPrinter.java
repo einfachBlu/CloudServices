@@ -26,8 +26,11 @@ public final class GameServerPrinter {
     public void print(GameServerInformation gameServerInformation) {
         System.out.println("&e" + gameServerInformation.getName() + " &r{");
         System.out.println(this.getTabString(1) + "&euniqueId: &r" + gameServerInformation.getUniqueId().toString());
+        System.out.println(this.getTabString(1) + "&eid: &r" + gameServerInformation.getId());
         System.out.println(this.getTabString(1) + "&ecloudType: &r" + gameServerInformation.getCloudType().getName());
-        System.out.println(this.getTabString(1) + "&erunningState: &r" + gameServerInformation.getRunningState().name());
+        System.out.println(this.getTabString(1) + "&estate: &r" + gameServerInformation.getState().name());
+        System.out.println(this.getTabString(1) + "&eonlinePlayers: &r" + gameServerInformation.getOnlinePlayers());
+        System.out.println(this.getTabString(1) + "&emaxPlayers: &r" + gameServerInformation.getMaxPlayers());
         System.out.println(this.getTabString(1) + "&ehost: &r" + gameServerInformation.getHost());
         System.out.println(this.getTabString(1) + "&eport: &r" + gameServerInformation.getPort());
         System.out.println(this.getTabString(1) + "&etemporaryPath: &r" + gameServerInformation.getTemporaryPath());

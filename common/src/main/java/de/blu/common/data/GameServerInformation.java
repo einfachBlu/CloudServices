@@ -12,14 +12,17 @@ public class GameServerInformation {
 
     private UUID uniqueId = UUID.randomUUID();
     private String name = "";
+    private int id = 0;
     private CloudType cloudType;
     private String host = "127.0.0.1";
     private int port = 0;
     private String temporaryPath = "";
+    private int onlinePlayers = 0;
+    private int maxPlayers = 100;
     private ServiceInformation serverStarterInformation;
-    private RunningState runningState = RunningState.CREATED;
+    private State state = State.CREATED;
 
-    public enum RunningState {
+    public enum State {
         CREATED, STARTING, ONLINE, STOPPING, OFFLINE
     }
 

@@ -3,7 +3,7 @@ package de.blu.common.network.packet.sender;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.database.redis.RedisConnection;
-import de.blu.common.network.packet.packets.Packet;
+import de.blu.common.network.packet.Packet;
 import de.blu.common.network.packet.repository.PacketCallbackRepository;
 import de.blu.common.service.SelfServiceInformation;
 import lombok.Getter;

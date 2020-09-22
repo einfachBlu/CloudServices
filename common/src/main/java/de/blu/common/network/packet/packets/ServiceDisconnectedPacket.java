@@ -2,6 +2,7 @@ package de.blu.common.network.packet.packets;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import de.blu.common.network.packet.Packet;
 import de.blu.common.service.ServiceInformation;
 import lombok.Getter;
 import lombok.Setter;

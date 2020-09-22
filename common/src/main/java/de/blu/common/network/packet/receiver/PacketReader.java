@@ -3,7 +3,7 @@ package de.blu.common.network.packet.receiver;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import de.blu.common.network.packet.packets.Packet;
+import de.blu.common.network.packet.Packet;
 import de.blu.common.network.packet.repository.PacketRepository;
 import de.blu.common.service.SelfServiceInformation;
 import lombok.Getter;

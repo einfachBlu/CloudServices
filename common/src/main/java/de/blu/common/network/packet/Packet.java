@@ -1,4 +1,4 @@
-package de.blu.common.network.packet.packets;
+package de.blu.common.network.packet;
 
 import com.google.inject.Inject;
 import de.blu.common.network.packet.repository.PacketCallbackRepository;

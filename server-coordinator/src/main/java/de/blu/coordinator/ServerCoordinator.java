@@ -207,6 +207,7 @@ public final class ServerCoordinator {
 
         this.getCheckForServers().startTimer();
 
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 Thread.sleep(200);
@@ -219,19 +220,7 @@ public final class ServerCoordinator {
             }
         }));
 
-        /*
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                ServerCoordinator.this.getResourceRequester().requestResources(requestResourcesPacket -> {
-                    System.out.println("Resources received from server-starter:");
-                    System.out.println("averageCpuLoad: " + requestResourcesPacket.getAverageCpuLoad());
-                    System.out.println("usedMemory: " + requestResourcesPacket.getUsedMemory());
-                    System.out.println("maxMemory: " + requestResourcesPacket.getMaxMemory());
-                    System.out.println("hostName: " + requestResourcesPacket.getHostName());
-                });
-            }
-        }, 1000, 1000);
-        */
+        // TODO: Remove when finishing debugging!
+        this.getRedisConnection().removeRecursive("gameserver");
     }
 }

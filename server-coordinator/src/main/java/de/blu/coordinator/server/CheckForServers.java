@@ -58,6 +58,11 @@ public final class CheckForServers {
         for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
             int currentOnlineAmount = this.getGameServerRepository().getGameServersByCloudType(cloudType).size();
 
+            if (cloudType.isStaticService() && currentOnlineAmount >= 1) {
+                // Allow only 1 server at once running for static Service
+                continue;
+            }
+
             if (currentOnlineAmount >= cloudType.getMaxOnlineServers()) {
                 // MaxOnlineServers already reached
                 continue;

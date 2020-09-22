@@ -18,6 +18,7 @@ public final class CloudTypeJsonConverter {
     public CloudType fromJson(String cloudTypeName, JSONObject data) {
         CloudType cloudType = this.getInjector().getInstance(CloudType.class);
         cloudType.setName(cloudTypeName);
+
         String typeString = (String) data.get("type");
 
         CloudType.Type type = CloudType.Type.valueOf(typeString);

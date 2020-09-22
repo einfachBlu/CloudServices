@@ -2,10 +2,9 @@ package de.blu.common.repository;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.blu.common.database.redis.RedisConnection;
-import de.blu.common.logging.Logger;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceInformation;
+import de.blu.common.service.Services;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -20,12 +19,6 @@ public final class ServiceRepository {
 
     public static final int REDIS_CACHE_TIME = 10000;
     public static final long KEEP_ALIVE_TIME = 8000;
-
-    @Inject
-    private RedisConnection redisConnection;
-
-    @Inject
-    private Logger logger;
 
     @Inject
     private SelfServiceInformation selfServiceInformation;
@@ -43,6 +36,12 @@ public final class ServiceRepository {
     public Collection<ServiceInformation> getServicesByName(String name) {
         return this.getServices().values().stream()
                 .filter(serviceInformation -> serviceInformation.getName().equalsIgnoreCase(name))
+                .collect(Collectors.toList());
+    }
+
+    public Collection<ServiceInformation> getServicesBy(Services service) {
+        return this.getServices().values().stream()
+                .filter(serviceInformation -> serviceInformation.getName().equalsIgnoreCase(service.getServiceName()))
                 .collect(Collectors.toList());
     }
 }

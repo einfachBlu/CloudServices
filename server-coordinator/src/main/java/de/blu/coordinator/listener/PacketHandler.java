@@ -10,6 +10,7 @@ import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
 import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.ServiceRepository;
+import de.blu.common.service.SelfServiceInformation;
 import lombok.Getter;
 
 @Singleton
@@ -29,6 +30,9 @@ public final class PacketHandler {
     private ServiceRepository serviceRepository;
 
     @Inject
+    private SelfServiceInformation selfServiceInformation;
+
+    @Inject
     private Logger logger;
 
     public void registerAll() {
@@ -37,8 +41,11 @@ public final class PacketHandler {
         }, "CallbackChannel");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+        }, this.getSelfServiceInformation().getIdentifier().toString());
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             if (packet instanceof RequestCloudTypesPacket) {
-                ((RequestCloudTypesPacket) packet).setCloudTypes(this.getCloudTypeRepository().getCloudTypes());
+                ((RequestCloudTypesPacket) packet).setJson(this.getCloudTypeRepository().getJson());
                 packet.sendBack();
             }
         }, "RequestCloudTypes");

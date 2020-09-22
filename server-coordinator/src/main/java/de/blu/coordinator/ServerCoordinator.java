@@ -23,6 +23,7 @@ import de.blu.common.util.LibraryUtils;
 import de.blu.coordinator.listener.PacketHandler;
 import de.blu.coordinator.module.ModuleSettings;
 import de.blu.coordinator.request.ResourceRequester;
+import de.blu.coordinator.server.CheckForServers;
 import lombok.Getter;
 
 import java.io.File;
@@ -126,6 +127,9 @@ public final class ServerCoordinator {
     @Inject
     private ResourceRequester resourceRequester;
 
+    @Inject
+    private CheckForServers checkForServers;
+
     private Logger logger;
 
     @Inject
@@ -200,6 +204,8 @@ public final class ServerCoordinator {
         this.getCommandRegister().registerRecursive("de.blu.coordinator.command");
 
         this.getLogger().info("ServerCoordinator is now started.");
+
+        this.getCheckForServers().startTimer();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

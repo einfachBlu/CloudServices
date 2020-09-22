@@ -71,9 +71,16 @@ public final class PacketHandler {
             Sigar sigar = new Sigar();
 
             try {
-                requestResourcesPacket.setUsedCpu((int) sigar.getCpu().getTotal());
-                requestResourcesPacket.setUsedMemory((int) sigar.getMem().getUsed());
-                requestResourcesPacket.setMaxMemory((int) sigar.getMem().getTotal());
+                int usedMemory = (int) (sigar.getMem().getUsed() / 1024 / 1024);
+                int maxMemory = (int) (sigar.getMem().getTotal() / 1024 / 1024);
+                double cpuLoadAverage = sigar.getLoadAverage()[0];
+                int amountOfCores = Runtime.getRuntime().availableProcessors();
+                double cpuLoad = (cpuLoadAverage / (double) amountOfCores) * 100;
+
+                requestResourcesPacket.setAverageCpuLoad(cpuLoad);
+                requestResourcesPacket.setUsedMemory(usedMemory);
+                requestResourcesPacket.setMaxMemory(maxMemory);
+                requestResourcesPacket.setHostName(sigar.getNetInfo().getHostName());
             } catch (SigarException e) {
                 e.printStackTrace();
             }

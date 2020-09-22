@@ -13,6 +13,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 @Singleton
 @Getter
@@ -31,12 +32,18 @@ public final class CloudTypeRequester {
     private Injector injector;
 
     public void requestCloudTypes() {
+        this.requestCloudTypes(aVoid -> {
+        });
+    }
+
+    public void requestCloudTypes(Consumer<Void> callback) {
         Collection<ServiceInformation> serverCoordinatorServices = this.getServiceRepository().getServicesBy(Services.SERVER_COORDINATOR);
         if (serverCoordinatorServices.size() > 0) {
             // Request CloudTypes
             RequestCloudTypesPacket requestCloudTypesPacket = this.getInjector().getInstance(RequestCloudTypesPacket.class);
             this.getPacketSender().sendRequestPacket(requestCloudTypesPacket, requestCloudTypesPacket1 -> {
                 this.getCloudTypeRepository().setCloudTypes(requestCloudTypesPacket1.getCloudTypes());
+                callback.accept(null);
                 System.out.println("&eCloudTypes &rreceived from server-coordinator: &e" + Arrays.toString(requestCloudTypesPacket1.getCloudTypes().toArray()));
             }, "RequestCloudTypes");
         }

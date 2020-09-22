@@ -9,11 +9,14 @@ import de.blu.common.repository.CloudTypeRepository;
 import de.blu.starter.ServerStarter;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 @Singleton
 @Getter
@@ -47,6 +50,63 @@ public final class TemplateInitializer {
 
         for (CloudType cloudType : inheritances) {
             this.copyTemplate(cloudType, this.getTempDirectory());
+        }
+    }
+
+    public void prepareDirectory(GameServerInformation gameServerInformation) {
+        switch (gameServerInformation.getCloudType().getType()) {
+            case BUKKIT:
+                this.prepareBukkitDirectory(gameServerInformation);
+                break;
+            case BUNGEECORD:
+                this.prepareBungeeCordDirectory(gameServerInformation);
+                break;
+        }
+    }
+
+    private void prepareBungeeCordDirectory(GameServerInformation gameServerInformation) {
+        File configFile = new File(this.getTempDirectory(), "config.yml");
+        try {
+            if (!configFile.exists()) {
+                configFile.createNewFile();
+            }
+
+            Yaml yaml = new Yaml();
+            Map<String, Object> config = (Map<String, Object>) yaml.load(new FileReader(configFile));
+            if (config == null) config = new LinkedHashMap<>();
+            List<Map<String, Object>> listeners = (List) config.get("listeners");
+            if (listeners == null) listeners = new ArrayList<>();
+            Map<String, Object> map = listeners.size() == 0 ? new LinkedHashMap<>() : listeners.get(0);
+            map.put("force_default_server", false);
+            map.put("host", "0.0.0.0:" + gameServerInformation.getPort());
+            if (listeners.size() == 0) listeners.add(map);
+            FileWriter writer = new FileWriter(configFile);
+            config.put("listeners", listeners);
+            DumperOptions dumperOptions = new DumperOptions();
+            dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+            new Yaml(dumperOptions).dump(config, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void prepareBukkitDirectory(GameServerInformation gameServerInformation) {
+        File serverProperties = new File(this.getTempDirectory(), "server.properties");
+
+        try {
+            if (!serverProperties.exists()) {
+                serverProperties.createNewFile();
+            }
+
+            Properties properties = new Properties();
+            properties.load(new FileReader(serverProperties));
+
+            properties.setProperty("online-mode", "false");
+            properties.setProperty("server-name", gameServerInformation.getName());
+
+            properties.store(new FileWriter(serverProperties), "");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

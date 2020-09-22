@@ -11,12 +11,14 @@ import de.blu.common.config.FileRootConfig;
 import de.blu.common.config.RedisConfig;
 import de.blu.common.data.CloudType;
 import de.blu.common.database.redis.RedisConnection;
+import de.blu.common.loader.GameServerLoader;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
 import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceConnectorBroadcast;
 import de.blu.common.service.ServiceKeepAlive;
+import de.blu.common.service.StaticIdentifierStorage;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
@@ -130,6 +132,12 @@ public final class ServerCoordinator {
     @Inject
     private CheckForServers checkForServers;
 
+    @Inject
+    private GameServerLoader gameServerLoader;
+
+    @Inject
+    private StaticIdentifierStorage staticIdentifierStorage;
+
     private Logger logger;
 
     @Inject
@@ -142,6 +150,7 @@ public final class ServerCoordinator {
 
         // Set ServiceName
         this.getSelfServiceInformation().setName("server-coordinator");
+        this.getStaticIdentifierStorage().init(new File(ServerCoordinator.getRootDirectory(), "identifier.properties"));
 
         // Init Logger
         this.getLoggingInitializer().init(new File(ServerCoordinator.getRootDirectory(), "logs"));
@@ -202,11 +211,11 @@ public final class ServerCoordinator {
         this.getServiceKeepAlive().init();
 
         this.getCommandRegister().registerRecursive("de.blu.coordinator.command");
+        this.getGameServerLoader().loadAllServers();
 
         this.getLogger().info("ServerCoordinator is now started.");
 
         this.getCheckForServers().startTimer();
-
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -219,8 +228,5 @@ public final class ServerCoordinator {
                 e.printStackTrace();
             }
         }));
-
-        // TODO: Remove when finishing debugging!
-        this.getRedisConnection().removeRecursive("gameserver");
     }
 }

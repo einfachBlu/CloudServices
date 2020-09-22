@@ -1,41 +1,23 @@
 package de.blu.coordinator.listener;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.blu.common.logging.Logger;
+import de.blu.common.data.GameServerInformation;
+import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
+import de.blu.common.network.packet.packets.ServerStoppedPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
-import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
-import de.blu.common.network.packet.repository.PacketListenerRepository;
-import de.blu.common.network.packet.sender.PacketSender;
-import de.blu.common.repository.CloudTypeRepository;
-import de.blu.common.repository.ServiceRepository;
-import de.blu.common.service.SelfServiceInformation;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @Singleton
 @Getter
-public final class PacketHandler {
+public final class PacketHandler extends DefaultPacketHandler {
 
-    @Inject
-    private PacketSender packetSender;
-
-    @Inject
-    private PacketListenerRepository packetListenerRepository;
-
-    @Inject
-    private CloudTypeRepository cloudTypeRepository;
-
-    @Inject
-    private ServiceRepository serviceRepository;
-
-    @Inject
-    private SelfServiceInformation selfServiceInformation;
-
-    @Inject
-    private Logger logger;
-
+    @Override
     public void registerAll() {
+        super.registerAll();
+
         // Register default for Callbacks
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
         }, "CallbackChannel");
@@ -51,15 +33,35 @@ public final class PacketHandler {
         }, "RequestCloudTypes");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            if (packet instanceof ServerStoppedPacket) {
+                ServerStoppedPacket serverStoppedPacket = (ServerStoppedPacket) packet;
+                UUID gameServerUniqueId = serverStoppedPacket.getGameServerUniqueId();
+
+                GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUniqueId);
+                this.getGameServerRepository().getGameServers().remove(gameServerInformation);
+                this.getGameServerStorage().removeGameServer(gameServerInformation);
+
+                System.out.println("&e" + gameServerInformation.getName() + "&r is now &coffline&7.");
+            }
+        }, "ServerStopped");
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            if (packet instanceof ServerStoppedPacket) {
+                ServerStoppedPacket serverStoppedPacket = (ServerStoppedPacket) packet;
+                UUID gameServerUniqueId = serverStoppedPacket.getGameServerUniqueId();
+
+                GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUniqueId);
+                this.getGameServerRepository().getGameServers().remove(gameServerInformation);
+                this.getGameServerStorage().removeGameServer(gameServerInformation);
+
+                System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
+            }
+        }, "ServerStarted");
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
             this.getLogger().info("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
         }, "ServiceConnected");
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
-            this.getLogger().info("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
-        }, "ServiceDisconnected");
     }
 }

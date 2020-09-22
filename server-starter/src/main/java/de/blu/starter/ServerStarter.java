@@ -26,7 +26,7 @@ import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
 import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
-import de.blu.starter.request.CloudTypeRequester;
+import de.blu.common.request.CloudTypeRequester;
 import de.blu.starter.template.TemporaryDirectoryRemover;
 import de.blu.starter.watch.ServerWatcher;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public final class ServerStarter {
             // Create Injector
             Injector injector = Guice.createInjector(new ModuleSettings());
 
-            // Calling Injected Constructor of CloudNode and start the Node
+            // Calling Injected Constructor
             injector.getInstance(ServerStarter.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -215,7 +215,6 @@ public final class ServerStarter {
 
             this.getServerWatcher().startTimer();
         });
-
 
         this.getLogger().info("ServerStarter is now started.");
 

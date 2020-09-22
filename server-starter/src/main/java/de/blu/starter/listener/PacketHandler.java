@@ -9,7 +9,7 @@ import de.blu.common.network.packet.packets.RequestResourcesPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.service.Services;
 import de.blu.starter.ServerStarter;
-import de.blu.starter.request.CloudTypeRequester;
+import de.blu.common.request.CloudTypeRequester;
 import de.blu.starter.server.GameServerStarter;
 import de.blu.starter.template.TemplateInitializer;
 import de.blu.starter.watch.ServerWatcher;
@@ -172,7 +172,7 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-            this.getLogger().info("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
 
             if (Services.SERVER_COORDINATOR.equals(serviceConnectedPacket.getServiceInformation().getService())) {

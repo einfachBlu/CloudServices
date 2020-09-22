@@ -1,4 +1,4 @@
-package de.blu.starter.request;
+package de.blu.common.request;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -44,7 +44,7 @@ public final class CloudTypeRequester {
             this.getPacketSender().sendRequestPacket(requestCloudTypesPacket, requestCloudTypesPacket1 -> {
                 this.getCloudTypeRepository().setCloudTypes(requestCloudTypesPacket1.getCloudTypes());
                 callback.accept(null);
-                System.out.println("&eCloudTypes &rreceived from server-coordinator: &e" + Arrays.toString(requestCloudTypesPacket1.getCloudTypes().toArray()));
+                //System.out.println("&eCloudTypes &rreceived from server-coordinator: &e" + Arrays.toString(requestCloudTypesPacket1.getCloudTypes().toArray()));
             }, "RequestCloudTypes");
         }
     }

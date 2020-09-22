@@ -5,9 +5,7 @@ import com.google.inject.Singleton;
 import de.blu.common.converter.GameServerJsonConverter;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.database.redis.RedisConnection;
-import de.blu.common.logging.Logger;
 import de.blu.common.network.packet.packets.GameServerUpdatePacket;
-import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
@@ -23,9 +21,6 @@ import lombok.Getter;
 @Singleton
 @Getter
 public class DefaultPacketHandler {
-
-    @Inject
-    private Logger logger;
 
     @Inject
     private PacketSender packetSender;
@@ -63,7 +58,7 @@ public class DefaultPacketHandler {
     public void registerAll() {
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
-            this.getLogger().info("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
         }, "ServiceDisconnected");
 

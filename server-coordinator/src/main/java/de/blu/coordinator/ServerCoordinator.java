@@ -43,7 +43,7 @@ public final class ServerCoordinator {
             // Create Injector
             Injector injector = Guice.createInjector(new ModuleSettings());
 
-            // Calling Injected Constructor of CloudNode and start the Node
+            // Calling Injected Constructor
             injector.getInstance(ServerCoordinator.class);
         } catch (Exception e) {
             e.printStackTrace();

@@ -24,36 +24,8 @@ public final class CloudTypeRepository {
     @Inject
     private RedisConnection redisConnection;
 
-    @Inject
-    private Logger logger;
-
     @Setter
     private String json = "";
-
-    public void save() {
-        // Clear old CloudTypes
-        this.getRedisConnection().removeRecursive("cloudtype");
-
-        // Save CloudTypes in Redis
-        synchronized (this.getCloudTypes()) {
-            for (CloudType cloudType : this.getCloudTypes()) {
-                /*
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".type", cloudType.getType().name(), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".staticService", String.valueOf(cloudType.isStaticService()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".minOnlineServers", String.valueOf(cloudType.getMinOnlineServers()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".maxOnlineServers", String.valueOf(cloudType.getMaxOnlineServers()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".portStart", String.valueOf(cloudType.getPortStart()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".portEnd", String.valueOf(cloudType.getPortEnd()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".memory", String.valueOf(cloudType.getMemory()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".maintenance", String.valueOf(cloudType.isMaintenance()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".templatePath", String.valueOf(cloudType.getTemplatePath()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".inheritances", String.join(",", cloudType.getInheritances()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".nodes", String.join(",", cloudType.getNodes()), REDIS_CACHE_TIME);
-                this.getRedisConnection().set("cloudtype." + cloudType.getName() + ".fallbackPriorities", String.join(",", cloudType.getProxyFallbackPriorities()), REDIS_CACHE_TIME);
-                 */
-            }
-        }
-    }
 
     public CloudType getCloudTypeByName(String cloudTypeName) {
         return this.getCloudTypes()

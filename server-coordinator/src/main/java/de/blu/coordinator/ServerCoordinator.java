@@ -24,13 +24,9 @@ import de.blu.coordinator.listener.PacketHandler;
 import de.blu.coordinator.module.ModuleSettings;
 import de.blu.coordinator.request.ResourceRequester;
 import lombok.Getter;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Singleton
 @Getter
@@ -217,33 +213,19 @@ public final class ServerCoordinator {
             }
         }));
 
+        /*
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                /*
                 ServerCoordinator.this.getResourceRequester().requestResources(requestResourcesPacket -> {
                     System.out.println("Resources received from server-starter:");
-                    System.out.println("usedCpu: " + requestResourcesPacket.getUsedCpu());
+                    System.out.println("averageCpuLoad: " + requestResourcesPacket.getAverageCpuLoad());
                     System.out.println("usedMemory: " + requestResourcesPacket.getUsedMemory());
                     System.out.println("maxMemory: " + requestResourcesPacket.getMaxMemory());
+                    System.out.println("hostName: " + requestResourcesPacket.getHostName());
                 });
-                 */
-
-                Sigar sigar = new Sigar();
-
-                try {
-                    System.out.println("cpu_total: " + sigar.getCpu().getTotal());
-                    System.out.println("mem_used: " + sigar.getMem().getUsed());
-                    System.out.println("mem_total: " + sigar.getMem().getTotal());
-                    System.out.println("mem_free: " + sigar.getMem().getFree());
-                    System.out.println("mem_ram: " + sigar.getMem().getRam());
-                    System.out.println("mem_used_percent: " + sigar.getMem().getUsedPercent());
-                } catch (SigarException e) {
-                    e.printStackTrace();
-                }
-
-                sigar.close();
             }
         }, 1000, 1000);
+        */
     }
 }

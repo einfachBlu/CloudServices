@@ -19,6 +19,9 @@ public final class ServiceConnectorBroadcast {
     private SelfServiceInformation selfServiceInformation;
 
     @Inject
+    private ServiceKeepAlive serviceKeepAlive;
+
+    @Inject
     private PacketSender packetSender;
 
     public void broadcastConnect() {
@@ -30,6 +33,8 @@ public final class ServiceConnectorBroadcast {
     public void broadcastDisconnect() {
         ServiceDisconnectedPacket serviceDisconnectedPacket = this.getInjector().getInstance(ServiceDisconnectedPacket.class);
         serviceDisconnectedPacket.setServiceInformation(this.getSelfServiceInformation());
+
+        this.getServiceKeepAlive().remove();
         this.getPacketSender().sendPacket(serviceDisconnectedPacket, "ServiceDisconnected");
     }
 

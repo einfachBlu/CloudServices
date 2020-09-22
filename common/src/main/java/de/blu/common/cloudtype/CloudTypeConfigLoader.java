@@ -68,12 +68,12 @@ public final class CloudTypeConfigLoader {
     public void loadConfig() throws Exception {
         JSONObject jsonObject = (JSONObject) JSONValue.parse(new FileReader(this.getConfigFile()));
 
-        this.loadFromJson(jsonObject.toJSONString());
+        this.getCloudTypeRepository().setCloudTypes(this.loadFromJson(jsonObject.toJSONString()));
     }
 
-    public void loadFromJson(String json) {
+    public Collection<CloudType> loadFromJson(String json) {
         if (json.equalsIgnoreCase("")) {
-            return;
+            return new ArrayList<>();
         }
 
         this.getCloudTypeRepository().setJson(json);
@@ -86,6 +86,6 @@ public final class CloudTypeConfigLoader {
             cloudTypes.add(cloudType);
         }
 
-        this.getCloudTypeRepository().setCloudTypes(cloudTypes);
+        return cloudTypes;
     }
 }

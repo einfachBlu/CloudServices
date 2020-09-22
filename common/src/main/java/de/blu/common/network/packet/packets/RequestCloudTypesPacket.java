@@ -16,6 +16,7 @@ import java.util.Map;
 public class RequestCloudTypesPacket extends Packet {
 
     private Collection<CloudType> cloudTypes = new ArrayList<>();
+    private String json = "";
 
     @Inject
     private CloudTypeRepository cloudTypeRepository;
@@ -25,7 +26,7 @@ public class RequestCloudTypesPacket extends Packet {
 
     @Override
     public Map<String, String> write(Map<String, String> data) {
-        data.put("jsonContent", this.getCloudTypeRepository().getJson());
+        data.put("jsonContent", this.getJson());
 
         return data;
     }
@@ -38,8 +39,6 @@ public class RequestCloudTypesPacket extends Packet {
             return;
         }
 
-        this.getCloudTypeConfigLoader().loadFromJson(jsonContent);
-
-        this.cloudTypes = this.getCloudTypeRepository().getCloudTypes();
+        this.cloudTypes = this.getCloudTypeConfigLoader().loadFromJson(jsonContent);
     }
 }

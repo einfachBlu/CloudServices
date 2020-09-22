@@ -3,8 +3,10 @@ package de.blu.coordinator.server;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import de.blu.common.converter.GameServerJsonConverter;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
+import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.service.ServiceInformation;
 import lombok.AccessLevel;
@@ -16,6 +18,12 @@ public final class GameServerFactory {
 
     @Inject
     private GameServerRepository gameServerRepository;
+
+    @Inject
+    private GameServerJsonConverter gameServerJsonConverter;
+
+    @Inject
+    private RedisConnection redisConnection;
 
     @Inject
     private Injector injector;
@@ -62,6 +70,10 @@ public final class GameServerFactory {
         gameServerInformation.setServerStarterInformation(serviceInformation);
 
         this.getGameServerRepository().getGameServers().add(gameServerInformation);
+
+        String json = this.getGameServerJsonConverter().toJson(gameServerInformation);
+        this.getRedisConnection().set("gameserver." + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString(), json);
+
         return gameServerInformation;
     }
 }

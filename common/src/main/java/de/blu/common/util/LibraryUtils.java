@@ -77,6 +77,7 @@ public final class LibraryUtils {
         //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/atomix/atomix-primary-backup/3.1.8/atomix-primary-backup-3.1.8.jar", "atomix-primary-backup-3.1.8.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar", "commons-math3-3.6.1.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/yaml/snakeyaml/1.17/snakeyaml-1.17.jar", "snakeyaml-1.17.jar");
+        LibraryUtils.downloadLibrary("https://dl.bintray.com/typesafe/maven-releases/org/hyperic/sigar/1.6.4/sigar-1.6.4.jar", "sigar-1.6.4.jar");
         //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/google/guava/guava/23.0/guava-23.0.jar", "guava-23.0.jar");
         //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/google/guava/guava/19.0/guava-19.0.jar", "guava-19.0.jar");
         //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.1/gson-2.8.1.jar", "gson-2.8.1.jar");

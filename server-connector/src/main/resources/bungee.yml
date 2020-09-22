@@ -1,4 +1,4 @@
 name: BungeeConnector
-main: de.blu.connector.bukkit.BungeeConnectorPlugin
+main: de.blu.connector.bungeecord.BungeeConnectorPlugin
 version: 1.0.0
 author: Blu

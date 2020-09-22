@@ -4,6 +4,7 @@ import com.google.inject.Singleton;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
+import de.blu.common.network.packet.packets.ServerStartedPacket;
 import de.blu.common.network.packet.packets.ServerStoppedPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import lombok.Getter;
@@ -46,13 +47,15 @@ public final class PacketHandler extends DefaultPacketHandler {
         }, "ServerStopped");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            if (packet instanceof ServerStoppedPacket) {
-                ServerStoppedPacket serverStoppedPacket = (ServerStoppedPacket) packet;
-                UUID gameServerUniqueId = serverStoppedPacket.getGameServerUniqueId();
+            if (packet instanceof ServerStartedPacket) {
+                ServerStartedPacket serverStartedPacket = (ServerStartedPacket) packet;
+                UUID gameServerUniqueId = serverStartedPacket.getGameServerUniqueId();
 
                 GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUniqueId);
                 this.getGameServerRepository().getGameServers().remove(gameServerInformation);
-                this.getGameServerStorage().removeGameServer(gameServerInformation);
+
+                gameServerInformation = this.getGameServerStorage().getGameServer(gameServerInformation.getName(), gameServerUniqueId);
+                this.getGameServerRepository().getGameServers().add(gameServerInformation);
 
                 System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
             }
@@ -60,7 +63,7 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-            this.getLogger().info("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
         }, "ServiceConnected");
     }

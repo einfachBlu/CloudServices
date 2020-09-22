@@ -5,7 +5,6 @@ import com.google.inject.Singleton;
 import de.blu.common.config.FileRootConfig;
 import de.blu.common.converter.CloudTypeJsonConverter;
 import de.blu.common.data.CloudType;
-import de.blu.common.logging.Logger;
 import de.blu.common.repository.CloudTypeRepository;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
@@ -22,9 +21,6 @@ import java.util.Collection;
 @Singleton
 @Getter
 public final class CloudTypeConfigLoader {
-
-    @Inject
-    private Logger logger;
 
     @Inject
     private CloudTypeRepository cloudTypeRepository;
@@ -45,7 +41,7 @@ public final class CloudTypeConfigLoader {
         }
         this.loadConfig();
 
-        this.getLogger().info("Loaded CloudTypes: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));
+        System.out.println("Loaded CloudTypes: " + Arrays.toString(this.getCloudTypeRepository().getCloudTypes().toArray()));
     }
 
     public void reload() {

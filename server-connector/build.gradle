@@ -6,6 +6,11 @@ plugins {
 group 'de.blu'
 version '1.0.0-SNAPSHOT'
 
+shadowJar {
+    relocate 'io.netty', 'shadow.io.netty'
+    relocate 'io.lettuce', 'shadow.io.lettuce'
+}
+
 dependencies {
     implementation project(':common')
 

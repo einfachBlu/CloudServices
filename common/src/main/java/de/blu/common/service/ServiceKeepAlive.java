@@ -95,4 +95,9 @@ public final class ServiceKeepAlive {
         this.getRedisConnection().set("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".name", this.getSelfServiceInformation().getName(), (int) TimeUnit.MILLISECONDS.toSeconds(ServiceRepository.REDIS_CACHE_TIME));
         this.getRedisConnection().set("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".identifier", this.getSelfServiceInformation().getIdentifier().toString(), (int) TimeUnit.MILLISECONDS.toSeconds(ServiceRepository.REDIS_CACHE_TIME));
     }
+
+    public void remove() {
+        this.getRedisConnection().remove("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".name");
+        this.getRedisConnection().remove("service." + this.getSelfServiceInformation().getIdentifier().toString() + ".identifier");
+    }
 }

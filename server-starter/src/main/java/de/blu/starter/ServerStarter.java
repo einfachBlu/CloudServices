@@ -20,7 +20,7 @@ import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
-import de.blu.starter.cloudtype.CloudTypeRequester;
+import de.blu.starter.request.CloudTypeRequester;
 import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
 import lombok.Getter;

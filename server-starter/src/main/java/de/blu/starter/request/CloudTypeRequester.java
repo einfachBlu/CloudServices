@@ -1,4 +1,4 @@
-package de.blu.starter.cloudtype;
+package de.blu.starter.request;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;

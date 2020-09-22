@@ -26,7 +26,7 @@ subprojects {
         maven { url = 'https://mvnrepository.com/artifact/org.yaml/snakeyaml/' }
         maven { url = 'https://repo.typesafe.com/typesafe/maven-releases/' }
         maven { url = 'http://maven.elmakers.com/repository/' }
-        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
         maven { url = 'http://repo.dmulloy2.net/nexus/repository/public/' }
         maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url = 'https://repo.md-5.net/content/repositories/snapshots/' }

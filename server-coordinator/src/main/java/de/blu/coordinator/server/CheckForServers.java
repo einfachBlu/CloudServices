@@ -103,6 +103,10 @@ public final class CheckForServers {
         this.getServerStarterReceiver().getBestServerStarter(targetCloudType, bestServerStarter -> {
             //System.out.println("&bTry to Start Server of CloudType " + cloudType.getName() + " on ServerStarter: " + bestServerStarter.getIdentifier().toString());
 
+            if (bestServerStarter == null) {
+                return;
+            }
+
             GameServerInformation gameServerInformation = this.getGameServerFactory().create(cloudType, bestServerStarter);
             if (gameServerInformation == null) {
                 return;

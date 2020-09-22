@@ -44,12 +44,12 @@ public final class FileRootSetup {
         this.getLogger().info("What is the RootDirectory for Templates & Configs? (default: &e" + defaultDirectory + "&r)");
         String directory = this.getConsoleInputReader().readLine();
 
-        if(!directory.endsWith("/")){
-            directory += "/";
-        }
-
         if (directory.equalsIgnoreCase("")) {
             directory = defaultDirectory;
+        }
+
+        if(!directory.endsWith("/")){
+            directory += "/";
         }
 
         File file = new File(directory);

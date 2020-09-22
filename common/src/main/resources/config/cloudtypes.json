@@ -21,7 +21,7 @@
   "Bungee": {
     "staticService": false,
     "type": "BUNGEECORD",
-    "minOnlineServers": 1,
+    "minOnlineServers": 0,
     "maxOnlineServers": 2,
     "portStart": 25565,
     "portEnd": 25566,
@@ -44,7 +44,7 @@
     "staticService": false,
     "permission": null,
     "type": "BUKKIT",
-    "minOnlineServers": 1,
+    "minOnlineServers": 0,
     "maxOnlineServers": 2,
     "portStart": 30000,
     "portEnd": 35000,

@@ -22,10 +22,12 @@ import de.blu.starter.ServerStarter;
 import de.blu.starter.request.CloudTypeRequester;
 import de.blu.starter.template.TemplateInitializer;
 import lombok.Getter;
+import org.apache.commons.io.FileUtils;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
 
 import java.io.File;
+import java.io.IOException;
 
 @Singleton
 @Getter
@@ -142,6 +144,13 @@ public final class PacketHandler {
                     gameServerInformation.setState(GameServerInformation.State.OFFLINE);
                     this.getGameServerStorage().saveGameServer(gameServerInformation);
                     requestGameServerStartPacket.setErrorMessage("You need to put the File 'server-software.jar' in the base folder of your template.");
+
+                    try {
+                        FileUtils.deleteDirectory(tempDirectory);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     requestGameServerStartPacket.sendBack();
                     return;
                 }
@@ -150,6 +159,13 @@ public final class PacketHandler {
                     gameServerInformation.setState(GameServerInformation.State.OFFLINE);
                     this.getGameServerStorage().saveGameServer(gameServerInformation);
                     requestGameServerStartPacket.setErrorMessage("You need to put the File 'cloud-connector.jar' in the plugins folder of your template.");
+
+                    try {
+                        FileUtils.deleteDirectory(tempDirectory);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     requestGameServerStartPacket.sendBack();
                     return;
                 }

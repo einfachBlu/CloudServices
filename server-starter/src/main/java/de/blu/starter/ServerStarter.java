@@ -8,15 +8,19 @@ import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
 import de.blu.common.config.RedisConfig;
+import de.blu.common.data.GameServerInformation;
 import de.blu.common.database.redis.RedisConnection;
+import de.blu.common.loader.GameServerLoader;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
+import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceConnectorBroadcast;
 import de.blu.common.service.ServiceKeepAlive;
+import de.blu.common.service.StaticIdentifierStorage;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
@@ -24,10 +28,13 @@ import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
 import de.blu.starter.request.CloudTypeRequester;
 import de.blu.starter.template.TemporaryDirectoryRemover;
+import de.blu.starter.watch.ServerWatcher;
 import lombok.Getter;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Singleton
 @Getter
@@ -133,6 +140,18 @@ public final class ServerStarter {
     @Inject
     private TemporaryDirectoryRemover temporaryDirectoryRemover;
 
+    @Inject
+    private StaticIdentifierStorage staticIdentifierStorage;
+
+    @Inject
+    private GameServerLoader gameServerLoader;
+
+    @Inject
+    private GameServerRepository gameServerRepository;
+
+    @Inject
+    private ServerWatcher serverWatcher;
+
     private Logger logger;
 
     @Inject
@@ -145,6 +164,7 @@ public final class ServerStarter {
 
         // Set ServiceName
         this.getSelfServiceInformation().setName("server-starter");
+        this.getStaticIdentifierStorage().init(new File(ServerStarter.getRootDirectory(), "identifier.properties"));
 
         // Init Logger
         this.getLoggingInitializer().init(new File(ServerStarter.getRootDirectory(), "logs"));
@@ -184,11 +204,18 @@ public final class ServerStarter {
         this.getPacketHandler().registerAll();
         this.getServiceKeepAlive().init();
 
-        //this.getCommandRegister().registerRecursive("de.blu.starter.command");
+        this.getCloudTypeRequester().requestCloudTypes(aVoid -> {
+            this.getGameServerLoader().loadAllServers();
+            this.getTemporaryDirectoryRemover().startTimer();
 
-        this.getCloudTypeRequester().requestCloudTypes();
+            List<GameServerInformation> gameServers = this.getGameServerRepository().getGameServers().stream()
+                    .filter(gameServerInformation -> gameServerInformation.getServerStarterInformation().getIdentifier().equals(this.getSelfServiceInformation().getIdentifier()))
+                    .collect(Collectors.toList());
+            this.getServerWatcher().getGameServers().addAll(gameServers);
 
-        this.getTemporaryDirectoryRemover().startTimer();
+            this.getServerWatcher().startTimer();
+        });
+
 
         this.getLogger().info("ServerStarter is now started.");
 

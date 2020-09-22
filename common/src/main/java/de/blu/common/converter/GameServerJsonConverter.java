@@ -40,7 +40,8 @@ public final class GameServerJsonConverter {
         data.put("onlinePlayers", gameServerInformation.getOnlinePlayers());
         data.put("maxPlayers", gameServerInformation.getMaxPlayers());
         data.put("state", gameServerInformation.getState().name());
-        data.put("serverStarterInformation", gameServerInformation.getServerStarterInformation().getIdentifier().toString());
+        data.put("serverStarterInformationIdentifier", gameServerInformation.getServerStarterInformation().getIdentifier().toString());
+        data.put("serverStarterInformationName", gameServerInformation.getServerStarterInformation().getName());
 
         return data.toJSONString();
     }
@@ -48,6 +49,7 @@ public final class GameServerJsonConverter {
     public GameServerInformation fromJson(String json) {
         JSONObject data = (JSONObject) JSONValue.parse(json);
         GameServerInformation gameServerInformation = this.getInjector().getInstance(GameServerInformation.class);
+        ServiceInformation serviceInformation = this.getInjector().getInstance(ServiceInformation.class);
 
         gameServerInformation.setUniqueId(UUID.fromString((String) data.get("uniqueId")));
         gameServerInformation.setName((String) data.get("name"));
@@ -59,10 +61,12 @@ public final class GameServerJsonConverter {
         gameServerInformation.setPort((int) ((long) data.get("port")));
         gameServerInformation.setState(GameServerInformation.State.valueOf((String) data.get("state")));
 
-        UUID serviceIdentifier = UUID.fromString((String) data.get("serverStarterInformation"));
+        UUID serviceIdentifier = UUID.fromString((String) data.get("serverStarterInformationIdentifier"));
+        String serviceName = (String) data.get("serverStarterInformationName");
         String cloudTypeName = (String) data.get("cloudType");
 
-        ServiceInformation serviceInformation = this.getServiceRepository().getServices().get(serviceIdentifier);
+        serviceInformation.setIdentifier(serviceIdentifier);
+        serviceInformation.setName(serviceName);
         gameServerInformation.setServerStarterInformation(serviceInformation);
 
         CloudType cloudType = this.getCloudTypeRepository().getCloudTypeByName(cloudTypeName);

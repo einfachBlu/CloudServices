@@ -2,25 +2,17 @@ package de.blu.starter.listener;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.blu.common.converter.GameServerJsonConverter;
 import de.blu.common.data.GameServerInformation;
-import de.blu.common.database.redis.RedisConnection;
-import de.blu.common.logging.Logger;
+import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.RequestGameServerStartPacket;
 import de.blu.common.network.packet.packets.RequestResourcesPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
-import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
-import de.blu.common.network.packet.repository.PacketListenerRepository;
-import de.blu.common.network.packet.sender.PacketSender;
-import de.blu.common.repository.CloudTypeRepository;
-import de.blu.common.repository.ServiceRepository;
-import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.Services;
-import de.blu.common.storage.GameServerStorage;
-import de.blu.common.util.AddressResolver;
 import de.blu.starter.ServerStarter;
 import de.blu.starter.request.CloudTypeRequester;
+import de.blu.starter.server.GameServerStarter;
 import de.blu.starter.template.TemplateInitializer;
+import de.blu.starter.watch.ServerWatcher;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.hyperic.sigar.Sigar;
@@ -31,45 +23,24 @@ import java.io.IOException;
 
 @Singleton
 @Getter
-public final class PacketHandler {
-
-    @Inject
-    private PacketSender packetSender;
-
-    @Inject
-    private PacketListenerRepository packetListenerRepository;
-
-    @Inject
-    private CloudTypeRepository cloudTypeRepository;
-
-    @Inject
-    private ServiceRepository serviceRepository;
+public final class PacketHandler extends DefaultPacketHandler {
 
     @Inject
     private CloudTypeRequester cloudTypeRequester;
 
     @Inject
-    private SelfServiceInformation selfServiceInformation;
-
-    @Inject
-    private RedisConnection redisConnection;
-
-    @Inject
-    private GameServerJsonConverter gameServerJsonConverter;
-
-    @Inject
-    private Logger logger;
-
-    @Inject
-    private GameServerStorage gameServerStorage;
-
-    @Inject
     private TemplateInitializer templateInitializer;
 
     @Inject
-    private AddressResolver addressResolver;
+    private GameServerStarter gameServerStarter;
 
+    @Inject
+    private ServerWatcher serverWatcher;
+
+    @Override
     public void registerAll() {
+        super.registerAll();
+
         // Register default for Callbacks
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
         }, "CallbackChannel");
@@ -135,10 +106,11 @@ public final class PacketHandler {
                 // Create Directory
                 this.getTemplateInitializer().createDirectory(gameServerInformation);
                 this.getTemplateInitializer().copyTemplates(gameServerInformation);
+                this.getTemplateInitializer().prepareDirectory(gameServerInformation);
 
                 // Check for needed files
                 File serverSoftwareFile = new File(tempDirectory, "server-software.jar");
-                File cloudConnectorFile = new File(tempDirectory, "plugins/cloud-connector.jar");
+                File cloudConnectorFile = new File(tempDirectory, "plugins/server-connector.jar");
 
                 if (!serverSoftwareFile.exists()) {
                     gameServerInformation.setState(GameServerInformation.State.OFFLINE);
@@ -158,7 +130,7 @@ public final class PacketHandler {
                 if (!cloudConnectorFile.exists()) {
                     gameServerInformation.setState(GameServerInformation.State.OFFLINE);
                     this.getGameServerStorage().saveGameServer(gameServerInformation);
-                    requestGameServerStartPacket.setErrorMessage("You need to put the File 'cloud-connector.jar' in the plugins folder of your template.");
+                    requestGameServerStartPacket.setErrorMessage("You need to put the File 'server-connector.jar' in the plugins folder of your template.");
 
                     try {
                         FileUtils.deleteDirectory(tempDirectory);
@@ -171,6 +143,27 @@ public final class PacketHandler {
                 }
 
                 // Start Server as Screen
+                boolean success = this.getGameServerStarter().startGameServer(gameServerInformation);
+
+                if (!success) {
+                    gameServerInformation.setState(GameServerInformation.State.OFFLINE);
+                    this.getGameServerStorage().saveGameServer(gameServerInformation);
+                    requestGameServerStartPacket.setErrorMessage("An error occured on process start.");
+
+                    try {
+                        FileUtils.deleteDirectory(tempDirectory);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    requestGameServerStartPacket.sendBack();
+                    return;
+                }
+
+                // Add to Watch
+                this.getServerWatcher().getGameServers().add(gameServerInformation);
+
+                System.out.println("&e" + gameServerInformation.getName() + "&r started successfully.");
 
                 // Send packet back
                 requestGameServerStartPacket.sendBack();
@@ -186,12 +179,6 @@ public final class PacketHandler {
                 this.getCloudTypeRequester().requestCloudTypes();
             }
         }, "ServiceConnected");
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
-            this.getLogger().info("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
-        }, "ServiceDisconnected");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             this.getCloudTypeRequester().requestCloudTypes();

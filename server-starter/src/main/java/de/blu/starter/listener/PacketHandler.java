@@ -20,6 +20,7 @@ import de.blu.common.storage.GameServerStorage;
 import de.blu.common.util.AddressResolver;
 import de.blu.starter.ServerStarter;
 import de.blu.starter.request.CloudTypeRequester;
+import de.blu.starter.template.TemplateInitializer;
 import lombok.Getter;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
@@ -59,6 +60,9 @@ public final class PacketHandler {
 
     @Inject
     private GameServerStorage gameServerStorage;
+
+    @Inject
+    private TemplateInitializer templateInitializer;
 
     @Inject
     private AddressResolver addressResolver;
@@ -106,19 +110,53 @@ public final class PacketHandler {
                             "static/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName());
                 }
 
-                if (!tempDirectory.exists()) {
-                    tempDirectory.mkdirs();
-                }
-
                 gameServerInformation.setHost(this.getAddressResolver().getIPAddress());
                 gameServerInformation.setTemporaryPath(tempDirectory.getAbsolutePath());
 
+                // Check if port is in use
+                if (this.getAddressResolver().isPortInUse(gameServerInformation.getHost(), gameServerInformation.getPort())) {
+                    gameServerInformation.setState(GameServerInformation.State.OFFLINE);
+                    this.getGameServerStorage().saveGameServer(gameServerInformation);
+                    // Information:
+                    // Its also possible to increase the port here and check if any other is free on this host, set
+                    // the new port and save the data then. The current case is very rare normally, so we leave
+                    // it like this for now
+                    requestGameServerStartPacket.setErrorMessage("The Port is already in use!");
+                    requestGameServerStartPacket.sendBack();
+                    return;
+                }
+
+                // Save new State, Host & TemporaryPath
                 gameServerInformation.setState(GameServerInformation.State.STARTING);
                 this.getGameServerStorage().saveGameServer(gameServerInformation);
 
-                //gameServerInformation.setState(GameServerInformation.State.OFFLINE);
-                //this.getGameServerStorage().saveGameServer(gameServerInformation);
-                //requestGameServerStartPacket.setErrorMessage("Das ist eine Test Fehlermeldung.");
+                // Create Directory
+                this.getTemplateInitializer().createDirectory(gameServerInformation);
+                this.getTemplateInitializer().copyTemplates(gameServerInformation);
+
+                // Check for needed files
+                File serverSoftwareFile = new File(tempDirectory, "server-software.jar");
+                File cloudConnectorFile = new File(tempDirectory, "plugins/cloud-connector.jar");
+
+                if (!serverSoftwareFile.exists()) {
+                    gameServerInformation.setState(GameServerInformation.State.OFFLINE);
+                    this.getGameServerStorage().saveGameServer(gameServerInformation);
+                    requestGameServerStartPacket.setErrorMessage("You need to put the File 'server-software.jar' in the base folder of your template.");
+                    requestGameServerStartPacket.sendBack();
+                    return;
+                }
+
+                if (!cloudConnectorFile.exists()) {
+                    gameServerInformation.setState(GameServerInformation.State.OFFLINE);
+                    this.getGameServerStorage().saveGameServer(gameServerInformation);
+                    requestGameServerStartPacket.setErrorMessage("You need to put the File 'cloud-connector.jar' in the plugins folder of your template.");
+                    requestGameServerStartPacket.sendBack();
+                    return;
+                }
+
+                // Start Server as Screen
+
+                // Send packet back
                 requestGameServerStartPacket.sendBack();
             }
         }, this.getSelfServiceInformation().getIdentifier().toString());

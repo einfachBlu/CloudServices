@@ -3,6 +3,7 @@ package de.blu.common.network.packet.packets;
 import com.google.inject.Inject;
 import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.data.CloudType;
+import de.blu.common.network.packet.Packet;
 import de.blu.common.repository.CloudTypeRepository;
 import lombok.Getter;
 import lombok.Setter;

@@ -9,6 +9,7 @@ import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.Services;
 import de.blu.coordinator.request.ResourceRequester;
+import de.blu.coordinator.request.ServerStartRequester;
 import lombok.Getter;
 
 import java.util.Timer;
@@ -41,6 +42,9 @@ public final class CheckForServers {
 
     @Inject
     private GameServerFactory gameServerFactory;
+
+    @Inject
+    private ServerStartRequester serverStartRequester;
 
     public void startTimer() {
         new Timer().schedule(new TimerTask() {
@@ -107,7 +111,7 @@ public final class CheckForServers {
             System.out.println("ServerStart Request for &e" + gameServerInformation.getName() +
                     "&r to ServerStarter &e" + bestServerStarter.getIdentifier().toString());
 
-            // TODO: Request to start a CloudType it on $bestServerStarter
+            this.getServerStartRequester().requestGameServerStart(gameServerInformation);
         });
     }
 }

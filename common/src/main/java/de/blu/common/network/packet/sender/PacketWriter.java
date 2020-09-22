@@ -1,7 +1,7 @@
 package de.blu.common.network.packet.sender;
 
 import com.google.inject.Singleton;
-import de.blu.common.network.packet.packets.Packet;
+import de.blu.common.network.packet.Packet;
 import lombok.Getter;
 
 import java.util.Map;

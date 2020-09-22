@@ -2,7 +2,11 @@ package de.blu.starter.listener;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.blu.common.converter.GameServerJsonConverter;
+import de.blu.common.data.GameServerInformation;
+import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.logging.Logger;
+import de.blu.common.network.packet.packets.RequestGameServerStartPacket;
 import de.blu.common.network.packet.packets.RequestResourcesPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
@@ -12,10 +16,15 @@ import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.Services;
+import de.blu.common.storage.GameServerStorage;
+import de.blu.common.util.AddressResolver;
+import de.blu.starter.ServerStarter;
 import de.blu.starter.request.CloudTypeRequester;
 import lombok.Getter;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
+
+import java.io.File;
 
 @Singleton
 @Getter
@@ -40,7 +49,19 @@ public final class PacketHandler {
     private SelfServiceInformation selfServiceInformation;
 
     @Inject
+    private RedisConnection redisConnection;
+
+    @Inject
+    private GameServerJsonConverter gameServerJsonConverter;
+
+    @Inject
     private Logger logger;
+
+    @Inject
+    private GameServerStorage gameServerStorage;
+
+    @Inject
+    private AddressResolver addressResolver;
 
     public void registerAll() {
         // Register default for Callbacks
@@ -70,6 +91,35 @@ public final class PacketHandler {
                 sigar.close();
 
                 requestResourcesPacket.sendBack();
+                return;
+            }
+
+            if (packet instanceof RequestGameServerStartPacket) {
+                RequestGameServerStartPacket requestGameServerStartPacket = (RequestGameServerStartPacket) packet;
+                GameServerInformation gameServerInformation = requestGameServerStartPacket.getGameServerInformation();
+
+                File tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
+                        "temporary/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString());
+
+                if (gameServerInformation.getCloudType().isStaticService()) {
+                    tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
+                            "static/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName());
+                }
+
+                if (!tempDirectory.exists()) {
+                    tempDirectory.mkdirs();
+                }
+
+                gameServerInformation.setHost(this.getAddressResolver().getIPAddress());
+                gameServerInformation.setTemporaryPath(tempDirectory.getAbsolutePath());
+
+                gameServerInformation.setState(GameServerInformation.State.STARTING);
+                this.getGameServerStorage().saveGameServer(gameServerInformation);
+
+                //gameServerInformation.setState(GameServerInformation.State.OFFLINE);
+                //this.getGameServerStorage().saveGameServer(gameServerInformation);
+                //requestGameServerStartPacket.setErrorMessage("Das ist eine Test Fehlermeldung.");
+                requestGameServerStartPacket.sendBack();
             }
         }, this.getSelfServiceInformation().getIdentifier().toString());
 

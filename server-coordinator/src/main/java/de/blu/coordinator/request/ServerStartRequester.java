@@ -36,8 +36,8 @@ public final class ServerStartRequester {
             GameServerInformation gameServerInformation1 = requestGameServerStartPacket1.getGameServerInformation();
 
             if (gameServerInformation1.getState().equals(GameServerInformation.State.OFFLINE)) {
-                System.out.println("Could not start GameServer " + gameServerInformation1.getName() + ":");
-                System.out.println(requestGameServerStartPacket1.getErrorMessage());
+                System.out.println("&cCould not start GameServer " + gameServerInformation1.getName() + ":");
+                System.out.println("&c" + requestGameServerStartPacket1.getErrorMessage());
                 this.getGameServerRepository().getGameServers().remove(gameServerInformation);
                 this.getGameServerStorage().removeGameServer(gameServerInformation);
             } else {

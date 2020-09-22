@@ -2,10 +2,8 @@ package de.blu.common.util;
 
 import com.google.inject.Singleton;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.IOException;
+import java.net.*;
 
 @Singleton
 public final class AddressResolver {
@@ -20,5 +18,24 @@ public final class AddressResolver {
         }
 
         return "-";
+    }
+
+    public boolean isPortInUse(String host, int port) {
+        // Check in Network
+        Socket socket = null;
+        try {
+            socket = new Socket(host, port);
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

@@ -20,9 +20,10 @@ import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
-import de.blu.starter.request.CloudTypeRequester;
 import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
+import de.blu.starter.request.CloudTypeRequester;
+import de.blu.starter.template.TemporaryDirectoryRemover;
 import lombok.Getter;
 
 import java.io.File;
@@ -129,6 +130,9 @@ public final class ServerStarter {
     @Inject
     private CloudTypeRequester cloudTypeRequester;
 
+    @Inject
+    private TemporaryDirectoryRemover temporaryDirectoryRemover;
+
     private Logger logger;
 
     @Inject
@@ -183,6 +187,8 @@ public final class ServerStarter {
         //this.getCommandRegister().registerRecursive("de.blu.starter.command");
 
         this.getCloudTypeRequester().requestCloudTypes();
+
+        this.getTemporaryDirectoryRemover().startTimer();
 
         this.getLogger().info("ServerStarter is now started.");
 

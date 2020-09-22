@@ -50,7 +50,7 @@ public final class ServerStarterReceiver {
             whileLoop:
             while (true) {
                 if (System.currentTimeMillis() - time >= timeout) {
-                    System.out.println("Missing a Callback of an ResourceRequest! timed out.");
+                    System.out.println("Missing a Callback of a ResourceRequest! timed out.");
                     bestServerStarterCallback.accept(null);
                     break;
                 }

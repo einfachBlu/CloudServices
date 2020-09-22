@@ -75,7 +75,7 @@ public final class RedisCredentialsSetup {
 
     private void askForPassword() {
         String defaultPassword = "";
-        this.getLogger().info("What is the Hostname/IP of the Redis Server? (default: &e" + (defaultPassword.equals("") ? "-" : defaultPassword) + "&r)");
+        this.getLogger().info("What is the Password of the Redis Server? (default: &e" + (defaultPassword.equals("") ? "-" : defaultPassword) + "&r)");
         String password = this.getConsoleInputReader().readLine();
         this.getRedisConfig().setPassword(password);
     }

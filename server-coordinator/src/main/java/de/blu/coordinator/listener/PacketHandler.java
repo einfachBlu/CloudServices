@@ -3,10 +3,10 @@ package de.blu.coordinator.listener;
 import com.google.inject.Singleton;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.network.packet.handler.DefaultPacketHandler;
-import de.blu.common.network.packet.packets.RequestCloudTypesPacket;
 import de.blu.common.network.packet.packets.ServerStartedPacket;
 import de.blu.common.network.packet.packets.ServerStoppedPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
+import de.blu.common.service.Services;
 import lombok.Getter;
 
 import java.util.UUID;
@@ -25,13 +25,6 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
         }, this.getSelfServiceInformation().getIdentifier().toString());
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            if (packet instanceof RequestCloudTypesPacket) {
-                ((RequestCloudTypesPacket) packet).setJson(this.getCloudTypeRepository().getJson());
-                packet.sendBack();
-            }
-        }, "RequestCloudTypes");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             if (packet instanceof ServerStoppedPacket) {
@@ -63,7 +56,10 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-            System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            if (!serviceConnectedPacket.getServiceInformation().getService().equals(Services.SERVER_CONNECTOR)) {
+                System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            }
+
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
         }, "ServiceConnected");
     }

@@ -3,10 +3,12 @@ package de.blu.connector.common;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.config.RedisConfig;
+import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.database.redis.RedisConnection;
-import de.blu.common.request.CloudTypeRequester;
+import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceConnectorBroadcast;
 import de.blu.common.service.ServiceKeepAlive;
@@ -51,7 +53,10 @@ public final class ConnectorService {
     private GameServerStorage gameServerStorage;
 
     @Inject
-    private CloudTypeRequester cloudTypeRequester;
+    private CloudTypeConfigLoader cloudTypeConfigLoader;
+
+    @Inject
+    private CloudTypeRepository cloudTypeRepository;
 
     @Inject
     @Named("dataFolder")
@@ -88,13 +93,29 @@ public final class ConnectorService {
         this.getPacketHandler().registerAll();
         this.getServiceKeepAlive().init();
 
-        this.getCloudTypeRequester().requestCloudTypes(aVoid -> {
-            GameServerInformation gameServerInformation = this.getGameServerStorage().getGameServer(serverName, UUID.fromString(serverUniqueIdString));
-            gameServerInformation.setState(GameServerInformation.State.ONLINE);
-            this.getGameServerStorage().saveGameServer(gameServerInformation);
+        try {
+            // Load CloudTypes
+            this.getCloudTypeConfigLoader().initDefaultConfig();
 
-            this.getServerStartedSender().sendServerStarted(gameServerInformation);
-        });
+            // Create Template Directories if not exist
+            for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
+                File templateDirectory = new File(fileRoot + "Templates", cloudType.getName());
+                if (cloudType.getTemplatePath() != null && !cloudType.getTemplatePath().equalsIgnoreCase("") && !cloudType.getTemplatePath().equalsIgnoreCase("null")) {
+                    templateDirectory = new File(cloudType.getTemplatePath());
+                }
+
+                templateDirectory.mkdirs();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+            return;
+        }
+
+        GameServerInformation gameServerInformation = this.getGameServerStorage().getGameServer(serverName, UUID.fromString(serverUniqueIdString));
+        gameServerInformation.setState(GameServerInformation.State.ONLINE);
+        this.getGameServerStorage().saveGameServer(gameServerInformation);
+        this.getServerStartedSender().sendServerStarted(gameServerInformation);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

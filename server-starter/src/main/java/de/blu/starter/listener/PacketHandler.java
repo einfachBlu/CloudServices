@@ -6,7 +6,6 @@ import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.*;
-import de.blu.common.service.Services;
 import de.blu.starter.ServerStarter;
 import de.blu.starter.server.GameServerStarter;
 import de.blu.starter.template.TemplateInitializer;
@@ -178,20 +177,14 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-
-            if (!serviceConnectedPacket.getServiceInformation().getService().equals(Services.SERVER_CONNECTOR)) {
-                System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            }
+            System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
 
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
         }, "ServiceConnected");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
-
-            if (!serviceDisconnectedPacket.getServiceInformation().getService().equals(Services.SERVER_CONNECTOR)) {
-                System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            }
+            System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
 
             this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
         }, "ServiceDisconnected");

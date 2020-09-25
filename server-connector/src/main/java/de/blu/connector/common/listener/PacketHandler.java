@@ -19,11 +19,5 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
         }, this.getSelfServiceInformation().getIdentifier().toString());
-
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-            System.out.println("Service connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
-        }, "ServiceConnected");
     }
 }

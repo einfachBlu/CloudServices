@@ -6,6 +6,7 @@ import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.ServerStartedPacket;
 import de.blu.common.network.packet.packets.ServerStoppedPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
+import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
 import de.blu.common.service.Services;
 import lombok.Getter;
 
@@ -62,5 +63,15 @@ public final class PacketHandler extends DefaultPacketHandler {
 
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
         }, "ServiceConnected");
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
+
+            if (!serviceDisconnectedPacket.getServiceInformation().getService().equals(Services.SERVER_CONNECTOR)) {
+                System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            }
+
+            this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
+        }, "ServiceDisconnected");
     }
 }

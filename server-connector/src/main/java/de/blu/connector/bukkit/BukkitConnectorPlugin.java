@@ -41,7 +41,7 @@ public final class BukkitConnectorPlugin extends JavaPlugin {
             });
 
             // Calling Injected Constructor
-            this.connectorService = injector.getInstance(ConnectorService.class);
+            this.connectorService = injector.getInstance(BukkitConnectorService.class);
             this.connectorService.onEnable();
         } catch (Exception e) {
             e.printStackTrace();

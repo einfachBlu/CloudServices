@@ -6,7 +6,6 @@ import de.blu.common.converter.GameServerJsonConverter;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.network.packet.packets.GameServerUpdatePacket;
-import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
 import de.blu.common.repository.CloudTypeRepository;
@@ -56,12 +55,6 @@ public class DefaultPacketHandler {
     private GameServerUpdatedSender gameServerUpdatedSender;
 
     public void registerAll() {
-        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
-            System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
-        }, "ServiceDisconnected");
-
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             GameServerUpdatePacket gameServerUpdatePacket = (GameServerUpdatePacket) packet;
 

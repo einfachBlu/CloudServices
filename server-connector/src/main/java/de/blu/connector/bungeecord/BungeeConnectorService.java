@@ -139,6 +139,18 @@ public final class BungeeConnectorService extends ConnectorService {
             return null;
         }
 
+        ServerInfo currentServer = null;
+        if (player.getServer() != null) {
+            currentServer = player.getServer().getInfo();
+        }
+
+        if (currentServer != null) {
+            ServerInfo finalCurrentServer = currentServer;
+            fallbackServers = fallbackServers.stream()
+                    .filter(gameServerInformation -> !gameServerInformation.getName().equalsIgnoreCase(finalCurrentServer.getName()))
+                    .collect(Collectors.toList());
+        }
+
         GameServerInformation fallbackServer = fallbackServers.get(new Random().nextInt(fallbackServers.size()));
 
         return ProxyServer.getInstance().getServers().get(fallbackServer.getName());

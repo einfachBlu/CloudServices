@@ -83,7 +83,7 @@ public final class ServerWatcher {
         }
     }
 
-    private void killScreen(GameServerInformation gameServerInformation) {
+    public void killScreen(GameServerInformation gameServerInformation) {
         String command = "screen -S %s -X quit";
         String fullServerName = gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString();
         String filledCommand = String.format(command, fullServerName);

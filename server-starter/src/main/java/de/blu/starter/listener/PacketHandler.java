@@ -5,11 +5,12 @@ import com.google.inject.Singleton;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.RequestGameServerStartPacket;
+import de.blu.common.network.packet.packets.RequestGameServerStopPacket;
 import de.blu.common.network.packet.packets.RequestResourcesPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
+import de.blu.common.request.CloudTypeRequester;
 import de.blu.common.service.Services;
 import de.blu.starter.ServerStarter;
-import de.blu.common.request.CloudTypeRequester;
 import de.blu.starter.server.GameServerStarter;
 import de.blu.starter.template.TemplateInitializer;
 import de.blu.starter.watch.ServerWatcher;
@@ -68,6 +69,13 @@ public final class PacketHandler extends DefaultPacketHandler {
                 sigar.close();
 
                 requestResourcesPacket.sendBack();
+                return;
+            }
+            if (packet instanceof RequestGameServerStopPacket) {
+                RequestGameServerStopPacket requestGameServerStopPacket = (RequestGameServerStopPacket) packet;
+                GameServerInformation gameServerInformation = requestGameServerStopPacket.getGameServerInformation();
+
+                this.getServerWatcher().killScreen(gameServerInformation);
                 return;
             }
 

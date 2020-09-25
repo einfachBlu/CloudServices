@@ -13,11 +13,10 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class RequestGameServerStartPacket extends Packet {
+public class RequestGameServerStopPacket extends Packet {
 
     private String gameServerName;
     private UUID gameServerUniqueId;
-    private String errorMessage = "";
 
     @Inject
     private RedisConnection redisConnection;
@@ -29,7 +28,6 @@ public class RequestGameServerStartPacket extends Packet {
     public Map<String, String> write(Map<String, String> data) {
         data.put("gameServerName", this.getGameServerName());
         data.put("gameServerUniqueId", this.getGameServerUniqueId().toString());
-        data.put("errorMessage", this.getErrorMessage());
 
         return data;
     }
@@ -38,7 +36,6 @@ public class RequestGameServerStartPacket extends Packet {
     public void read(Map<String, String> content) {
         this.setGameServerName(content.get("gameServerName"));
         this.setGameServerUniqueId(UUID.fromString(content.get("gameServerUniqueId")));
-        this.setErrorMessage(content.get("errorMessage"));
     }
 
     public GameServerInformation getGameServerInformation() {

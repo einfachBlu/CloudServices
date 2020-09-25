@@ -4,10 +4,12 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
 import de.blu.common.config.RedisConfig;
+import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.loader.GameServerLoader;
@@ -15,6 +17,7 @@ import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.network.packet.sender.PacketSender;
+import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.SelfServiceInformation;
@@ -26,7 +29,6 @@ import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
 import de.blu.starter.listener.PacketHandler;
 import de.blu.starter.module.ModuleSettings;
-import de.blu.common.request.CloudTypeRequester;
 import de.blu.starter.template.TemporaryDirectoryRemover;
 import de.blu.starter.watch.ServerWatcher;
 import lombok.Getter;
@@ -111,6 +113,9 @@ public final class ServerStarter {
     private PacketListenerRepository packetListenerRepository;
 
     @Inject
+    private CloudTypeConfigLoader cloudTypeConfigLoader;
+
+    @Inject
     private RedisCredentialsSetup redisCredentialsSetup;
 
     @Inject
@@ -135,9 +140,6 @@ public final class ServerStarter {
     private ServiceRepository serviceRepository;
 
     @Inject
-    private CloudTypeRequester cloudTypeRequester;
-
-    @Inject
     private TemporaryDirectoryRemover temporaryDirectoryRemover;
 
     @Inject
@@ -148,6 +150,9 @@ public final class ServerStarter {
 
     @Inject
     private GameServerRepository gameServerRepository;
+
+    @Inject
+    private CloudTypeRepository cloudTypeRepository;
 
     @Inject
     private ServerWatcher serverWatcher;
@@ -206,17 +211,34 @@ public final class ServerStarter {
 
         this.getCommandRegister().registerRecursive("de.blu.starter.command");
 
-        this.getCloudTypeRequester().requestCloudTypes(aVoid -> {
-            this.getGameServerLoader().loadAllServers();
-            this.getTemporaryDirectoryRemover().startTimer();
+        try {
+            // Load CloudTypes
+            this.getCloudTypeConfigLoader().initDefaultConfig();
 
-            List<GameServerInformation> gameServers = this.getGameServerRepository().getGameServers().stream()
-                    .filter(gameServerInformation -> gameServerInformation.getServerStarterInformation().getIdentifier().equals(this.getSelfServiceInformation().getIdentifier()))
-                    .collect(Collectors.toList());
-            this.getServerWatcher().getGameServers().addAll(gameServers);
+            // Create Template Directories if not exist
+            for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
+                File templateDirectory = new File(this.getFileRootConfig().getRootFileDirectory() + "Templates", cloudType.getName());
+                if (cloudType.getTemplatePath() != null && !cloudType.getTemplatePath().equalsIgnoreCase("") && !cloudType.getTemplatePath().equalsIgnoreCase("null")) {
+                    templateDirectory = new File(cloudType.getTemplatePath());
+                }
 
-            this.getServerWatcher().startTimer();
-        });
+                templateDirectory.mkdirs();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+            return;
+        }
+
+        this.getGameServerLoader().loadAllServers();
+
+        List<GameServerInformation> gameServers = this.getGameServerRepository().getGameServers().stream()
+                .filter(gameServerInformation -> gameServerInformation.getServerStarterInformation().getIdentifier().equals(this.getSelfServiceInformation().getIdentifier()))
+                .collect(Collectors.toList());
+        this.getServerWatcher().getGameServers().addAll(gameServers);
+
+        this.getTemporaryDirectoryRemover().startTimer();
+        this.getServerWatcher().startTimer();
 
         this.getLogger().info("ServerStarter is now started.");
 

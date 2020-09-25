@@ -2,13 +2,13 @@ package de.blu.starter.listener;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.network.packet.handler.DefaultPacketHandler;
 import de.blu.common.network.packet.packets.RequestGameServerStartPacket;
 import de.blu.common.network.packet.packets.RequestGameServerStopPacket;
 import de.blu.common.network.packet.packets.RequestResourcesPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
-import de.blu.common.request.CloudTypeRequester;
 import de.blu.common.service.Services;
 import de.blu.starter.ServerStarter;
 import de.blu.starter.server.GameServerStarter;
@@ -27,13 +27,13 @@ import java.io.IOException;
 public final class PacketHandler extends DefaultPacketHandler {
 
     @Inject
-    private CloudTypeRequester cloudTypeRequester;
-
-    @Inject
     private TemplateInitializer templateInitializer;
 
     @Inject
     private GameServerStarter gameServerStarter;
+
+    @Inject
+    private CloudTypeConfigLoader cloudTypeConfigLoader;
 
     @Inject
     private ServerWatcher serverWatcher;
@@ -71,6 +71,7 @@ public final class PacketHandler extends DefaultPacketHandler {
                 requestResourcesPacket.sendBack();
                 return;
             }
+
             if (packet instanceof RequestGameServerStopPacket) {
                 RequestGameServerStopPacket requestGameServerStopPacket = (RequestGameServerStopPacket) packet;
                 GameServerInformation gameServerInformation = requestGameServerStopPacket.getGameServerInformation();
@@ -180,16 +181,16 @@ public final class PacketHandler extends DefaultPacketHandler {
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-            System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
-            this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
 
-            if (Services.SERVER_COORDINATOR.equals(serviceConnectedPacket.getServiceInformation().getService())) {
-                this.getCloudTypeRequester().requestCloudTypes();
+            if (!serviceConnectedPacket.getServiceInformation().getService().equals(Services.SERVER_CONNECTOR)) {
+                System.out.println("&aService connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             }
+
+            this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
         }, "ServiceConnected");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            this.getCloudTypeRequester().requestCloudTypes();
+            this.getCloudTypeConfigLoader().reload();
         }, "CloudCoordinatorReloaded");
     }
 }

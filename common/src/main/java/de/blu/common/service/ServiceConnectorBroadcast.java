@@ -34,11 +34,15 @@ public final class ServiceConnectorBroadcast {
         ServiceDisconnectedPacket serviceDisconnectedPacket = this.getInjector().getInstance(ServiceDisconnectedPacket.class);
         serviceDisconnectedPacket.setServiceInformation(this.getSelfServiceInformation());
 
+        //System.out.println("BroadcastDisconnect called for self (" + this.getSelfServiceInformation().getIdentifier().toString() + ")");
+
         this.getServiceKeepAlive().remove();
         this.getPacketSender().sendPacket(serviceDisconnectedPacket, "ServiceDisconnected");
     }
 
     public void broadcastDisconnect(ServiceInformation targetServiceInformation) {
+        //System.out.println("BroadcastDisconnect called for " + targetServiceInformation.getIdentifier().toString());
+
         ServiceDisconnectedPacket serviceDisconnectedPacket = this.getInjector().getInstance(ServiceDisconnectedPacket.class);
         serviceDisconnectedPacket.setServiceInformation(targetServiceInformation);
         this.getPacketSender().sendPacket(serviceDisconnectedPacket, "ServiceDisconnected");

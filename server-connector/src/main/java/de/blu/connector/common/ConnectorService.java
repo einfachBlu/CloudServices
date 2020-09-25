@@ -70,6 +70,8 @@ public class ConnectorService {
     @Named("dataFolder")
     private File dataFolder;
 
+    private GameServerInformation selfGameServerInformation;
+
     public void onEnable() {
         String serverName = System.getProperty("cloud-servername");
         String serverUniqueIdString = System.getProperty("cloud-serveruuid");
@@ -127,6 +129,8 @@ public class ConnectorService {
         this.getGameServerLoader().loadAllServers();
         this.getGameServerStorage().saveGameServer(gameServerInformation);
         this.getServerStartedSender().sendServerStarted(gameServerInformation);
+
+        this.selfGameServerInformation = gameServerInformation;
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

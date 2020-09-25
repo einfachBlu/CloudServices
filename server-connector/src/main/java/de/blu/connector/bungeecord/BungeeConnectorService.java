@@ -10,15 +10,18 @@ import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.ServiceInformation;
+import de.blu.connector.bungeecord.listener.ServerKickListener;
 import de.blu.connector.common.ConnectorService;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Singleton
 @Getter
@@ -33,11 +36,40 @@ public final class BungeeConnectorService extends ConnectorService {
     @Inject
     private ServiceRepository serviceRepository;
 
+    @Inject
+    private ServerKickListener serverKickListener;
+
+    @Inject
+    private Plugin plugin;
+
     private Map<UUID, String> serverUniqueIdByName = new HashMap<>();
 
     @Override
     public void onEnable() {
         super.onEnable();
+
+        // Register Listener
+        ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getServerKickListener());
+
+        // Add ReconnectHandler
+        ProxyServer.getInstance().setReconnectHandler(new ReconnectHandler() {
+            @Override
+            public ServerInfo getServer(ProxiedPlayer player) {
+                return BungeeConnectorService.this.getFallbackServer(player);
+            }
+
+            @Override
+            public void setServer(ProxiedPlayer player) {
+            }
+
+            @Override
+            public void save() {
+            }
+
+            @Override
+            public void close() {
+            }
+        });
 
         // Create ServerInfo Objects
         for (GameServerInformation gameServer : this.getGameServerRepository().getGameServers()) {
@@ -96,5 +128,19 @@ public final class BungeeConnectorService extends ConnectorService {
         String name = this.getServerUniqueIdByName().remove(uuid);
         ProxyServer.getInstance().getServers().remove(name);
         System.out.println("Unregistered Server " + name);
+    }
+
+    public ServerInfo getFallbackServer(ProxiedPlayer player) {
+        List<GameServerInformation> fallbackServers = this.getGameServerRepository().getGameServers().stream()
+                .filter(gameServerInformation -> this.getSelfGameServerInformation().getCloudType().getProxyFallbackPriorities().contains(gameServerInformation.getCloudType().getName()))
+                .collect(Collectors.toList());
+
+        if (fallbackServers.size() == 0) {
+            return null;
+        }
+
+        GameServerInformation fallbackServer = fallbackServers.get(new Random().nextInt(fallbackServers.size()));
+
+        return ProxyServer.getInstance().getServers().get(fallbackServer.getName());
     }
 }

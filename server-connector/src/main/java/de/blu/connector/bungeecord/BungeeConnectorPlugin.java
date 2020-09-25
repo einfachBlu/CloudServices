@@ -41,7 +41,7 @@ public final class BungeeConnectorPlugin extends Plugin {
             });
 
             // Calling Injected Constructor
-            this.connectorService = injector.getInstance(ConnectorService.class);
+            this.connectorService = injector.getInstance(BungeeConnectorService.class);
             this.connectorService.onEnable();
         } catch (Exception e) {
             e.printStackTrace();

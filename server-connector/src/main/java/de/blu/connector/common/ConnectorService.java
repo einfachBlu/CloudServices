@@ -4,10 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import de.blu.common.cloudtype.CloudTypeConfigLoader;
+import de.blu.common.config.FileRootConfig;
 import de.blu.common.config.RedisConfig;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.database.redis.RedisConnection;
+import de.blu.common.loader.GameServerLoader;
 import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceConnectorBroadcast;
@@ -23,7 +25,7 @@ import java.util.UUID;
 
 @Singleton
 @Getter
-public final class ConnectorService {
+public class ConnectorService {
 
     @Inject
     private SelfServiceInformation selfServiceInformation;
@@ -59,6 +61,12 @@ public final class ConnectorService {
     private CloudTypeRepository cloudTypeRepository;
 
     @Inject
+    private GameServerLoader gameServerLoader;
+
+    @Inject
+    private FileRootConfig fileRootConfig;
+
+    @Inject
     @Named("dataFolder")
     private File dataFolder;
 
@@ -67,6 +75,8 @@ public final class ConnectorService {
         String serverUniqueIdString = System.getProperty("cloud-serveruuid");
         String fileRootPath = System.getProperty("cloud-fileroot");
         File fileRoot = new File(fileRootPath);
+
+        this.getFileRootConfig().setRootFileDirectory(fileRootPath);
 
         // Set ServiceName
         this.getSelfServiceInformation().setName("server-connector");
@@ -99,7 +109,7 @@ public final class ConnectorService {
 
             // Create Template Directories if not exist
             for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
-                File templateDirectory = new File(fileRoot + "Templates", cloudType.getName());
+                File templateDirectory = new File(new File(fileRoot, "Templates"), cloudType.getName());
                 if (cloudType.getTemplatePath() != null && !cloudType.getTemplatePath().equalsIgnoreCase("") && !cloudType.getTemplatePath().equalsIgnoreCase("null")) {
                     templateDirectory = new File(cloudType.getTemplatePath());
                 }
@@ -114,6 +124,7 @@ public final class ConnectorService {
 
         GameServerInformation gameServerInformation = this.getGameServerStorage().getGameServer(serverName, UUID.fromString(serverUniqueIdString));
         gameServerInformation.setState(GameServerInformation.State.ONLINE);
+        this.getGameServerLoader().loadAllServers();
         this.getGameServerStorage().saveGameServer(gameServerInformation);
         this.getServerStartedSender().sendServerStarted(gameServerInformation);
 

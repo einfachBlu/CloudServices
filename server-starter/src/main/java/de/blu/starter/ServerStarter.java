@@ -204,6 +204,8 @@ public final class ServerStarter {
         this.getPacketHandler().registerAll();
         this.getServiceKeepAlive().init();
 
+        this.getCommandRegister().registerRecursive("de.blu.starter.command");
+
         this.getCloudTypeRequester().requestCloudTypes(aVoid -> {
             this.getGameServerLoader().loadAllServers();
             this.getTemporaryDirectoryRemover().startTimer();

@@ -17,6 +17,7 @@ import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.service.StaticIdentifierStorage;
 import de.blu.common.storage.GameServerStorage;
 import de.blu.connector.common.listener.PacketHandler;
+import de.blu.connector.common.provider.SelfGameServerInformationProvider;
 import de.blu.connector.common.sender.ServerStartedSender;
 import lombok.Getter;
 
@@ -65,6 +66,9 @@ public class ConnectorService {
 
     @Inject
     private FileRootConfig fileRootConfig;
+
+    @Inject
+    private SelfGameServerInformationProvider selfGameServerInformationProvider;
 
     @Inject
     @Named("dataFolder")
@@ -131,6 +135,7 @@ public class ConnectorService {
         this.getServerStartedSender().sendServerStarted(gameServerInformation);
 
         this.selfGameServerInformation = gameServerInformation;
+        this.getSelfGameServerInformationProvider().setGameServerInformation(gameServerInformation);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

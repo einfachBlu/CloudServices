@@ -30,7 +30,8 @@ public final class GameServerStorage {
         }
 
         String json = this.getRedisConnection().get("gameserver." + name + "_" + uniqueId.toString());
-        return this.getGameServerJsonConverter().fromJson(json);
+        GameServerInformation gameServerInformation = this.getGameServerJsonConverter().fromJson(json);
+        return gameServerInformation;
     }
 
     public void removeGameServer(GameServerInformation gameServerInformation) {

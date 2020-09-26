@@ -1,10 +1,11 @@
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 group 'de.blu'
-version '1.0.0-SNAPSHOT'
+version '1.1.0-SNAPSHOT'
 
 shadowJar {
     relocate 'io.netty', 'shadow.io.netty'
@@ -43,6 +44,39 @@ shadowJar.doLast {
 
         rename {
             "server-connector.jar"
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+publishing {
+    /*
+    repositories {
+        maven {
+            credentials {
+                username "${miniMavenUser}"
+                password "${miniMavenPassword}"
+            }
+            url = 'http://0.0.0.0:8081/repository/custom/'
+        }
+    }
+    */
+    publications {
+        myrepository(MavenPublication) {
+            groupId = "${project.group}"
+            artifactId = "${project.name}"
+            version = "${project.version}"
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
         }
     }
 }

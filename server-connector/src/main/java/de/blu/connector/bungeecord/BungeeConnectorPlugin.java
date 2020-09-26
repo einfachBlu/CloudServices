@@ -8,6 +8,8 @@ import com.google.inject.name.Names;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.database.redis.RedisConnectionProvider;
 import de.blu.common.util.LibraryUtils;
+import de.blu.connector.api.CloudAPI;
+import de.blu.connector.bungeecord.api.BungeeCloudAPI;
 import de.blu.connector.common.ConnectorService;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -37,12 +39,15 @@ public final class BungeeConnectorPlugin extends Plugin {
 
                     bind(RedisConnection.class).to(RedisConnectionProvider.class);
                     bind(ExecutorService.class).toInstance(Executors.newCachedThreadPool());
+                    bind(CloudAPI.class).to(BungeeCloudAPI.class);
                 }
             });
 
             // Calling Injected Constructor
             this.connectorService = injector.getInstance(BungeeConnectorService.class);
             this.connectorService.onEnable();
+
+            injector.getInstance(CloudAPI.class);
         } catch (Exception e) {
             e.printStackTrace();
             ProxyServer.getInstance().stop();

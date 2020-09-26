@@ -8,8 +8,10 @@ import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.ServiceInformation;
+import de.blu.connector.bukkit.listener.JoinPermissionValidator;
 import de.blu.connector.common.ConnectorService;
 import lombok.Getter;
+import org.bukkit.plugin.java.JavaPlugin;
 
 @Singleton
 @Getter
@@ -21,9 +23,17 @@ public final class BukkitConnectorService extends ConnectorService {
     @Inject
     private ServiceRepository serviceRepository;
 
+    @Inject
+    private JavaPlugin plugin;
+
+    @Inject
+    private JoinPermissionValidator joinPermissionValidator;
+
     @Override
     public void onEnable() {
         super.onEnable();
+
+        this.getPlugin().getServer().getPluginManager().registerEvents(this.getJoinPermissionValidator(), this.getPlugin());
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;

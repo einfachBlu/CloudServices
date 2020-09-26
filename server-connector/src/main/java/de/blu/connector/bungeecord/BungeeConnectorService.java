@@ -4,14 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
-import de.blu.common.network.packet.packets.ServerStartedPacket;
-import de.blu.common.network.packet.packets.ServerStoppedPacket;
-import de.blu.common.network.packet.packets.ServiceConnectedPacket;
-import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
+import de.blu.common.network.packet.packets.*;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.connector.bungeecord.command.HubCommand;
+import de.blu.connector.bungeecord.listener.OnlinePlayersUpdater;
 import de.blu.connector.bungeecord.listener.ServerKickListener;
 import de.blu.connector.common.ConnectorService;
 import lombok.Getter;
@@ -42,6 +40,9 @@ public final class BungeeConnectorService extends ConnectorService {
     private ServerKickListener serverKickListener;
 
     @Inject
+    private OnlinePlayersUpdater onlinePlayersUpdater;
+
+    @Inject
     private HubCommand hubCommand;
 
     @Inject
@@ -60,6 +61,7 @@ public final class BungeeConnectorService extends ConnectorService {
 
         // Register Listener
         ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getServerKickListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getOnlinePlayersUpdater());
 
         // Add ReconnectHandler
         ProxyServer.getInstance().setReconnectHandler(new ReconnectHandler() {
@@ -89,6 +91,14 @@ public final class BungeeConnectorService extends ConnectorService {
 
             this.registerServer(gameServer);
         }
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            GameServerUpdatePacket gameServerUpdatePacket = (GameServerUpdatePacket) packet;
+
+            GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUpdatePacket.getGameServerUniqueId());
+            this.getGameServerRepository().getGameServers().remove(gameServerInformation);
+            this.getGameServerRepository().getGameServers().add(gameServerUpdatePacket.getGameServerInformation());
+        }, "GameServerUpdated");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             if (packet instanceof ServerStartedPacket) {

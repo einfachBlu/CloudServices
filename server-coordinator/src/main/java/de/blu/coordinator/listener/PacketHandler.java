@@ -7,7 +7,6 @@ import de.blu.common.network.packet.packets.ServerStartedPacket;
 import de.blu.common.network.packet.packets.ServerStoppedPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
-import de.blu.common.service.Services;
 import lombok.Getter;
 
 import java.util.UUID;

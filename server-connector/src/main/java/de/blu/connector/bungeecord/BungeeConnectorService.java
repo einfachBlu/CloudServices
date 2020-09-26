@@ -4,12 +4,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
+import de.blu.common.network.packet.packets.ServerStartedPacket;
+import de.blu.common.network.packet.packets.ServerStoppedPacket;
 import de.blu.common.network.packet.packets.ServiceConnectedPacket;
 import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
-import de.blu.common.service.ServiceInformation;
+import de.blu.connector.bungeecord.command.HubCommand;
 import de.blu.connector.bungeecord.listener.ServerKickListener;
 import de.blu.connector.common.ConnectorService;
 import lombok.Getter;
@@ -40,6 +42,9 @@ public final class BungeeConnectorService extends ConnectorService {
     private ServerKickListener serverKickListener;
 
     @Inject
+    private HubCommand hubCommand;
+
+    @Inject
     private Plugin plugin;
 
     private Map<UUID, String> serverUniqueIdByName = new HashMap<>();
@@ -47,6 +52,11 @@ public final class BungeeConnectorService extends ConnectorService {
     @Override
     public void onEnable() {
         super.onEnable();
+
+        ProxyServer.getInstance().getServers().remove("lobby");
+
+        // Register Command
+        ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getHubCommand());
 
         // Register Listener
         ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getServerKickListener());
@@ -81,28 +91,46 @@ public final class BungeeConnectorService extends ConnectorService {
         }
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            if (packet instanceof ServerStartedPacket) {
+                ServerStartedPacket serverStartedPacket = (ServerStartedPacket) packet;
+                UUID gameServerUniqueId = serverStartedPacket.getGameServerUniqueId();
+                String gameServerName = serverStartedPacket.getGameServerName();
+
+                GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUniqueId);
+                this.getGameServerRepository().getGameServers().remove(gameServerInformation);
+                gameServerInformation = this.getGameServerStorage().getGameServer(gameServerName, gameServerUniqueId);
+                this.getGameServerRepository().getGameServers().add(gameServerInformation);
+
+                System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
+
+                this.registerServer(gameServerInformation);
+            }
+        }, "ServerStarted");
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            if (packet instanceof ServerStoppedPacket) {
+                ServerStoppedPacket serverStoppedPacket = (ServerStoppedPacket) packet;
+                UUID gameServerUniqueId = serverStoppedPacket.getGameServerUniqueId();
+
+                GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUniqueId);
+                this.getGameServerRepository().getGameServers().remove(gameServerInformation);
+                this.getGameServerStorage().removeGameServer(gameServerInformation);
+
+                System.out.println("&e" + gameServerInformation.getName() + "&r is now &coffline&7.");
+
+                this.unregisterServer(gameServerInformation.getUniqueId());
+            }
+        }, "ServerStopped");
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
             System.out.println("Service connected: " + serviceConnectedPacket.getServiceInformation().getName() + " (" + serviceConnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().addService(serviceConnectedPacket.getServiceInformation());
-
-            ServiceInformation serviceInformation = serviceConnectedPacket.getServiceInformation();
-            GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(serviceInformation.getIdentifier());
-
-            if (gameServerInformation == null || !gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUKKIT)) {
-                return;
-            }
-
-            this.registerServer(gameServerInformation);
         }, "ServiceConnected");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
             System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
             this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
-
-            ServiceInformation serviceInformation = serviceDisconnectedPacket.getServiceInformation();
-
-            this.unregisterServer(serviceInformation.getIdentifier());
         }, "ServiceDisconnected");
     }
 
@@ -149,6 +177,10 @@ public final class BungeeConnectorService extends ConnectorService {
             fallbackServers = fallbackServers.stream()
                     .filter(gameServerInformation -> !gameServerInformation.getName().equalsIgnoreCase(finalCurrentServer.getName()))
                     .collect(Collectors.toList());
+        }
+
+        if (fallbackServers.size() == 0) {
+            return null;
         }
 
         GameServerInformation fallbackServer = fallbackServers.get(new Random().nextInt(fallbackServers.size()));

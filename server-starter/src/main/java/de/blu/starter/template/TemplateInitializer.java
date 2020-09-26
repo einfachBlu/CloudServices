@@ -36,7 +36,7 @@ public final class TemplateInitializer {
 
         if (gameServerInformation.getCloudType().isStaticService()) {
             this.tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
-                    "static/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName());
+                    "static/" + gameServerInformation.getName());
         }
 
         if (!this.tempDirectory.exists()) {

@@ -13,8 +13,8 @@ import java.util.UUID;
 @Setter
 public class ServerStartedPacket extends Packet {
 
-    private UUID gameServerUniqueId;
-    private String gameServerName;
+    private UUID gameServerUniqueId = null;
+    private String gameServerName = "";
 
     @Inject
     private Injector injector;

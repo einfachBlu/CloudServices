@@ -6,7 +6,6 @@ import de.blu.connector.bungeecord.BungeeConnectorService;
 import lombok.Getter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -29,13 +28,18 @@ public final class ServerKickListener implements Listener {
             kickedFrom = player.getServer().getInfo();
         }
 
-        if (kickedFrom == null) {
+        ServerInfo moveTo = this.getBungeeConnectorService().getFallbackServer(player);
+        if (moveTo == null) {
+            if (kickedFrom != null) {
+                e.setKickReasonComponent(new BaseComponent[]{new TextComponent(e.getKickReasonComponent())});
+                return;
+            }
+
+            e.setKickReasonComponent(new BaseComponent[]{new TextComponent("No Fallback Server available")});
             return;
         }
 
-        ServerInfo moveTo = this.getBungeeConnectorService().getFallbackServer(player);
-        if (moveTo == null) {
-            e.setKickReasonComponent(new BaseComponent[]{new TextComponent("No Fallback Server available")});
+        if (kickedFrom == null) {
             return;
         }
 

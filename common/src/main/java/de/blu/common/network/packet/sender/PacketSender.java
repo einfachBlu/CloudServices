@@ -30,7 +30,6 @@ public final class PacketSender {
 
     public <T extends Packet> boolean sendRequestPacket(T packet, Consumer<T> callback, String channel) {
         Map<String, String> data = new HashMap<>();
-        data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
 
         this.getPacketCallbackRepository().addRequestCallback(packet.getUniqueId(), callback);
 
@@ -40,7 +39,6 @@ public final class PacketSender {
 
     public boolean sendPacket(Packet packet, Consumer<Void> doneCallback, String channel) {
         Map<String, String> data = new HashMap<>();
-        data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
 
         this.getPacketCallbackRepository().addDoneCallback(packet.getUniqueId(), doneCallback);
 
@@ -50,7 +48,6 @@ public final class PacketSender {
 
     public boolean sendPacket(Packet packet, String channel) {
         Map<String, String> data = new HashMap<>();
-        data.put("senderIdentifier", this.getSelfServiceInformation().getIdentifier().toString());
         data = this.getPacketWriter().writePacket(packet, data);
         return this.send(data, channel);
     }

@@ -85,7 +85,7 @@ public final class PacketHandler extends DefaultPacketHandler {
 
                 if (gameServerInformation.getCloudType().isStaticService()) {
                     tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
-                            "static/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName());
+                            "static/" + gameServerInformation.getName());
                 }
 
                 gameServerInformation.setHost(this.getAddressResolver().getIPAddress());

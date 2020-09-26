@@ -1,6 +1,7 @@
 package de.blu.connector.bungeecord;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
@@ -8,6 +9,9 @@ import de.blu.common.network.packet.packets.*;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
+import de.blu.connector.bungeecord.api.event.ServerStartedEvent;
+import de.blu.connector.bungeecord.api.event.ServerStoppedEvent;
+import de.blu.connector.bungeecord.api.event.ServerUpdatedEvent;
 import de.blu.connector.bungeecord.command.HubCommand;
 import de.blu.connector.bungeecord.listener.OnlinePlayersUpdater;
 import de.blu.connector.bungeecord.listener.ServerKickListener;
@@ -47,6 +51,9 @@ public final class BungeeConnectorService extends ConnectorService {
 
     @Inject
     private Plugin plugin;
+
+    @Inject
+    private Injector injector;
 
     private Map<UUID, String> serverUniqueIdByName = new HashMap<>();
 
@@ -98,6 +105,10 @@ public final class BungeeConnectorService extends ConnectorService {
             GameServerInformation gameServerInformation = this.getGameServerRepository().getGameServerByUniqueId(gameServerUpdatePacket.getGameServerUniqueId());
             this.getGameServerRepository().getGameServers().remove(gameServerInformation);
             this.getGameServerRepository().getGameServers().add(gameServerUpdatePacket.getGameServerInformation());
+
+            ServerUpdatedEvent serverUpdatedEvent = this.getInjector().getInstance(ServerUpdatedEvent.class);
+            serverUpdatedEvent.setGameServerInformation(gameServerInformation);
+            ProxyServer.getInstance().getPluginManager().callEvent(serverUpdatedEvent);
         }, "GameServerUpdated");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
@@ -114,6 +125,9 @@ public final class BungeeConnectorService extends ConnectorService {
                 System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
 
                 this.registerServer(gameServerInformation);
+                ServerStartedEvent serverStartedEvent = this.getInjector().getInstance(ServerStartedEvent.class);
+                serverStartedEvent.setGameServerInformation(gameServerInformation);
+                ProxyServer.getInstance().getPluginManager().callEvent(serverStartedEvent);
             }
         }, "ServerStarted");
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
@@ -128,6 +142,9 @@ public final class BungeeConnectorService extends ConnectorService {
                 System.out.println("&e" + gameServerInformation.getName() + "&r is now &coffline&7.");
 
                 this.unregisterServer(gameServerInformation.getUniqueId());
+                ServerStoppedEvent serverStoppedEvent = this.getInjector().getInstance(ServerStoppedEvent.class);
+                serverStoppedEvent.setGameServerInformation(gameServerInformation);
+                ProxyServer.getInstance().getPluginManager().callEvent(serverStoppedEvent);
             }
         }, "ServerStopped");
 

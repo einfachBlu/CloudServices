@@ -56,6 +56,6 @@ public final class BukkitConnectorPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.connectorService.onEnable();
+        this.connectorService.onDisable();
     }
 }

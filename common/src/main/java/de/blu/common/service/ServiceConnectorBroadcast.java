@@ -27,6 +27,7 @@ public final class ServiceConnectorBroadcast {
     public void broadcastConnect() {
         ServiceConnectedPacket serviceConnectedPacket = this.getInjector().getInstance(ServiceConnectedPacket.class);
         serviceConnectedPacket.setServiceInformation(this.getSelfServiceInformation());
+
         this.getPacketSender().sendPacket(serviceConnectedPacket, "ServiceConnected");
     }
 

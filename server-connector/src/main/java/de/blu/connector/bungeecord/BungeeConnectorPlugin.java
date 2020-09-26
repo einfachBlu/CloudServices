@@ -56,6 +56,6 @@ public final class BungeeConnectorPlugin extends Plugin {
 
     @Override
     public void onDisable() {
-        this.connectorService.onEnable();
+        this.connectorService.onDisable();
     }
 }

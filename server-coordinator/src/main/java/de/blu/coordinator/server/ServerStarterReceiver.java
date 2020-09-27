@@ -47,6 +47,7 @@ public final class ServerStarterReceiver {
 
             long time = System.currentTimeMillis();
             long timeout = 5000;
+            boolean lastStarterHasNoMemory = false;
             whileLoop:
             while (true) {
                 if (System.currentTimeMillis() - time >= timeout) {
@@ -57,6 +58,7 @@ public final class ServerStarterReceiver {
 
                 for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
                     if (!serviceResources.containsKey(serviceInformation)) {
+                        // Continue While loop because we have not from every starter a callback
                         continue whileLoop;
                     }
                 }
@@ -78,8 +80,11 @@ public final class ServerStarterReceiver {
 
                     if (cloudType.getMemory() > availableMemory) {
                         // Has not enough memory
+                        lastStarterHasNoMemory = true;
                         continue;
                     }
+
+                    lastStarterHasNoMemory = false;
 
                     if (bestServerStarter == null) {
                         bestServerStarter = serviceInformation;
@@ -94,6 +99,10 @@ public final class ServerStarterReceiver {
 
                     bestServerStarter = serviceInformation;
                     bestServerStarterResources = requestResourcesPacket;
+                }
+
+                if (bestServerStarter == null && lastStarterHasNoMemory) {
+                    System.out.println("&eAll ServerStarters are out of memory for " + cloudType.getName() + "!");
                 }
 
                 bestServerStarterCallback.accept(bestServerStarter);

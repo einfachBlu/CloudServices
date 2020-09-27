@@ -27,6 +27,7 @@ public class HubCommand extends Command {
         }
 
         ProxiedPlayer player = (ProxiedPlayer) sender;
+        //if(player.getServer().getInfo().getName().toLowerCase().contains("lobby")){
         if (this.getBungeeConnectorService().getSelfGameServerInformation().getName().toLowerCase().contains("lobby")) {
             //player.sendMessage(ChatColor.RED + "Du bist bereits auf der Lobby.");
             return;

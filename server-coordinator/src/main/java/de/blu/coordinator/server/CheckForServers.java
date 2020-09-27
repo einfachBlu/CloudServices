@@ -10,11 +10,14 @@ import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.Services;
 import de.blu.coordinator.request.ResourceRequester;
 import de.blu.coordinator.request.ServerStartRequester;
+import de.blu.coordinator.request.ServerStopRequester;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 @Singleton
 @Getter
@@ -46,13 +49,76 @@ public final class CheckForServers {
     @Inject
     private ServerStartRequester serverStartRequester;
 
+    @Inject
+    private ServerStopRequester serverStopRequester;
+
     public void startTimer() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 CheckForServers.this.startServersIfNeeded();
+                CheckForServers.this.stopServersIfPossible();
             }
         }, 0, CHECK_INTERVAL);
+    }
+
+    private void stopServersIfPossible() {
+        // Check if at least one ServerStarter is online
+        if (this.getServiceRepository().getServicesBy(Services.SERVER_STARTER).size() == 0) {
+            return;
+        }
+
+        // Check which Server can be stopped
+        GameServerInformation targetGameServerInformation = null;
+        for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
+            // We filter out every manually started server
+            int currentOnlineAmount = (int) this.getGameServerRepository().getGameServersByCloudType(cloudType)
+                    .stream()
+                    .filter(gameServerInformation -> !gameServerInformation.isManuallyStarted())
+                    .count();
+
+            if (currentOnlineAmount <= cloudType.getMinOnlineServers()) {
+                // Dont need to, because its not or equals to the minOnlineServers()
+                continue;
+            }
+
+            int playersInCloudType = this.getGameServerRepository().getGameServersByCloudType(cloudType)
+                    .stream()
+                    .mapToInt(GameServerInformation::getOnlinePlayers)
+                    .sum();
+            int maxPlayersForCloudType = this.getGameServerRepository().getGameServersByCloudType(cloudType)
+                    .stream()
+                    .mapToInt(GameServerInformation::getMaxPlayers)
+                    .sum();
+
+            if (playersInCloudType >= maxPlayersForCloudType / 4) {
+                continue;
+            }
+
+            // We need to remove the servers with 0 players online
+            List<GameServerInformation> gameServers = this.getGameServerRepository().getGameServersByCloudType(cloudType)
+                    .stream()
+                    .filter(gameServerInformation -> !gameServerInformation.isManuallyStarted())
+                    .filter(gameServerInformation -> gameServerInformation.getOnlinePlayers() <= 0)
+                    .collect(Collectors.toList());
+
+            if (gameServers.size() == 0) {
+                // No Empty Server found
+                continue;
+            }
+
+            targetGameServerInformation = gameServers.get(0);
+            break;
+        }
+
+        if (targetGameServerInformation == null) {
+            // No GameServer needs to be stopped
+            return;
+        }
+
+        this.getServerStopRequester().requestGameServerStop(targetGameServerInformation);
+        System.out.println("ServerStop Request for &e" + targetGameServerInformation.getName() +
+                "&r to ServerStarter &e" + targetGameServerInformation.getServerStarterInformation().getIdentifier().toString());
     }
 
     private void startServersIfNeeded() {
@@ -64,6 +130,7 @@ public final class CheckForServers {
         // Check which CloudType needs to be started and set by priority
         CloudType targetCloudType = null;
         for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
+
             int currentOnlineAmount = this.getGameServerRepository().getGameServersByCloudType(cloudType).size();
 
             if (cloudType.isStaticService() && currentOnlineAmount >= 1) {
@@ -75,9 +142,22 @@ public final class CheckForServers {
                 // MaxOnlineServers already reached
                 continue;
             }
+
             if (currentOnlineAmount >= cloudType.getMinOnlineServers()) {
                 // minOnlineAmount already reached
-                continue;
+                // Check here if enough players are online
+                int playersInCloudType = this.getGameServerRepository().getGameServersByCloudType(cloudType)
+                        .stream()
+                        .mapToInt(GameServerInformation::getOnlinePlayers)
+                        .sum();
+                int maxPlayersForCloudType = this.getGameServerRepository().getGameServersByCloudType(cloudType)
+                        .stream()
+                        .mapToInt(GameServerInformation::getMaxPlayers)
+                        .sum();
+
+                if (playersInCloudType <= maxPlayersForCloudType / 2) {
+                    continue;
+                }
             }
 
             if (targetCloudType == null) {
@@ -98,24 +178,8 @@ public final class CheckForServers {
             return;
         }
 
-        // Get best ServerStarter Service
+        // Request ServerStart
         CloudType cloudType = targetCloudType;
-        this.getServerStarterReceiver().getBestServerStarter(targetCloudType, bestServerStarter -> {
-            //System.out.println("&bTry to Start Server of CloudType " + cloudType.getName() + " on ServerStarter: " + bestServerStarter.getIdentifier().toString());
-
-            if (bestServerStarter == null) {
-                return;
-            }
-
-            GameServerInformation gameServerInformation = this.getGameServerFactory().create(cloudType, bestServerStarter);
-            if (gameServerInformation == null) {
-                return;
-            }
-
-            System.out.println("ServerStart Request for &e" + gameServerInformation.getName() +
-                    "&r to ServerStarter &e" + bestServerStarter.getIdentifier().toString());
-
-            this.getServerStartRequester().requestGameServerStart(gameServerInformation);
-        });
+        this.getServerStartRequester().requestGameServerStart(cloudType, false);
     }
 }

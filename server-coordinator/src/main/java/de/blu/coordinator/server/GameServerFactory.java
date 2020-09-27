@@ -28,7 +28,7 @@ public final class GameServerFactory {
     @Inject
     private Injector injector;
 
-    public GameServerInformation create(CloudType cloudType, ServiceInformation serviceInformation) {
+    public GameServerInformation create(CloudType cloudType, boolean manually, ServiceInformation serviceInformation) {
         GameServerInformation gameServerInformation = this.getInjector().getInstance(GameServerInformation.class);
 
         if (cloudType.isStaticService()) {
@@ -68,6 +68,7 @@ public final class GameServerFactory {
         gameServerInformation.setCloudType(cloudType);
         gameServerInformation.setState(GameServerInformation.State.CREATED);
         gameServerInformation.setServerStarterInformation(serviceInformation);
+        gameServerInformation.setManuallyStarted(manually);
 
         this.getGameServerRepository().getGameServers().add(gameServerInformation);
 

@@ -7,7 +7,11 @@ import de.blu.common.repository.GameServerRepository;
 import de.blu.common.storage.GameServerStorage;
 import de.blu.connector.common.provider.SelfGameServerInformationProvider;
 import de.blu.connector.common.sender.GameServerUpdateSender;
+import de.blu.connector.common.sender.PlayerServerSender;
 import lombok.Getter;
+
+import java.util.UUID;
+import java.util.function.Consumer;
 
 @Getter
 public abstract class CloudAPI {
@@ -26,6 +30,9 @@ public abstract class CloudAPI {
 
     @Inject
     private GameServerUpdateSender gameServerUpdateSender;
+
+    @Inject
+    private PlayerServerSender playerServerSender;
 
     public CloudAPI() {
         CloudAPI.instance = this;
@@ -53,5 +60,9 @@ public abstract class CloudAPI {
 
         this.getGameServerStorage().saveGameServer(gameServerInformation);
         this.getGameServerUpdateSender().sendServerUpdated();
+    }
+
+    public void sendToServer(UUID player, String serverName, Consumer<Void> doneCallback) {
+        this.getPlayerServerSender().sendToServer(player, serverName, doneCallback);
     }
 }

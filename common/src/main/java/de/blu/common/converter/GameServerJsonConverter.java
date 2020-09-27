@@ -40,6 +40,7 @@ public final class GameServerJsonConverter {
         data.put("onlinePlayers", gameServerInformation.getOnlinePlayers());
         data.put("maxPlayers", gameServerInformation.getMaxPlayers());
         data.put("state", gameServerInformation.getState().name());
+        data.put("gameState", gameServerInformation.getGameState());
         data.put("serverStarterInformationIdentifier", gameServerInformation.getServerStarterInformation().getIdentifier().toString());
         data.put("serverStarterInformationName", gameServerInformation.getServerStarterInformation().getName());
 
@@ -60,6 +61,7 @@ public final class GameServerJsonConverter {
         gameServerInformation.setHost((String) data.get("host"));
         gameServerInformation.setPort((int) ((long) data.get("port")));
         gameServerInformation.setState(GameServerInformation.State.valueOf((String) data.get("state")));
+        gameServerInformation.setGameState((String) data.get("gameState"));
 
         UUID serviceIdentifier = UUID.fromString((String) data.get("serverStarterInformationIdentifier"));
         String serviceName = (String) data.get("serverStarterInformationName");

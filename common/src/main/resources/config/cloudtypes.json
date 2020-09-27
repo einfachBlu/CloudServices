@@ -27,6 +27,7 @@
     "portEnd": 25566,
     "memory": 512,
     "priority": 5,
+    "maxPlayers": 100,
     "templatePath": null,
     "javaParameters": [],
     "serverParameters": [],
@@ -50,6 +51,7 @@
     "portEnd": 35000,
     "memory": 512,
     "priority": 10,
+    "maxPlayers": 50,
     "templatePath": null,
     "inheritances": [
       "BukkitBase"

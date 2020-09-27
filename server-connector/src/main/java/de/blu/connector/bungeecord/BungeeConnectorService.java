@@ -24,10 +24,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -205,9 +202,17 @@ public final class BungeeConnectorService extends ConnectorService {
     }
 
     public ServerInfo getFallbackServer(ProxiedPlayer player) {
-        List<GameServerInformation> fallbackServers = this.getGameServerRepository().getGameServers().stream()
-                .filter(gameServerInformation -> this.getSelfGameServerInformation().getCloudType().getProxyFallbackPriorities().contains(gameServerInformation.getCloudType().getName()))
-                .collect(Collectors.toList());
+        List<GameServerInformation> fallbackServers = new ArrayList<>();
+
+        for (String proxyFallbackPriority : this.getSelfGameServerInformation().getCloudType().getProxyFallbackPriorities()) {
+            CloudType cloudType = this.getCloudTypeRepository().getCloudTypeByName(proxyFallbackPriority);
+
+            if (proxyFallbackPriority == null) {
+                continue;
+            }
+
+            fallbackServers.addAll(this.getGameServerRepository().getGameServersByCloudType(cloudType));
+        }
 
         if (fallbackServers.size() == 0) {
             return null;

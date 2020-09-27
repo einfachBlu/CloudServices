@@ -22,6 +22,7 @@ public class GameServerInformation {
     private String gameState = GameState.LOADING.name();
     private ServiceInformation serverStarterInformation;
     private State state = State.CREATED;
+    private boolean manuallyStarted = false;
 
     public enum State {
         CREATED, STARTING, ONLINE, STOPPING, OFFLINE

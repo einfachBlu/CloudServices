@@ -35,8 +35,14 @@ public final class TemplateInitializer {
                 "temporary/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString());
 
         if (gameServerInformation.getCloudType().isStaticService()) {
-            this.tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
-                    "static/" + gameServerInformation.getName());
+            if (gameServerInformation.getCloudType().getTemplatePath() != null &&
+                    !gameServerInformation.getCloudType().getTemplatePath().equalsIgnoreCase("")) {
+
+                this.tempDirectory = new File(gameServerInformation.getCloudType().getTemplatePath());
+            } else {
+                this.tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
+                        "static/" + gameServerInformation.getName());
+            }
         }
 
         if (!this.tempDirectory.exists()) {
@@ -119,6 +125,10 @@ public final class TemplateInitializer {
             cloudTypeTemplateDirectory = new File(new File(this.getFileRootConfig().getRootFileDirectory()), "Templates/" + cloudType.getName());
         }
 
+        if (cloudTypeTemplateDirectory.getAbsolutePath().equalsIgnoreCase(this.getTempDirectory().getAbsolutePath())) {
+            return;
+        }
+
         this.copyFilesRecursive(cloudTypeTemplateDirectory, this.getTempDirectory());
     }
 
@@ -141,11 +151,23 @@ public final class TemplateInitializer {
         }
 
         for (File file : from.listFiles()) {
+            File targetFile = new File(to, file.getName());
             if (file.isDirectory()) {
-                this.copyFilesRecursive(file, new File(to, file.getName()));
+                this.copyFilesRecursive(file, targetFile);
             } else {
                 try {
-                    FileUtils.copyFile(file, new File(to, file.getName()));
+                    if (file.getAbsolutePath().equalsIgnoreCase(targetFile.getAbsolutePath())) {
+                        continue;
+                    }
+
+                    if (targetFile.exists()) {
+                        if (targetFile.lastModified() > file.lastModified()) {
+                            // Dont overwrite files if file in static directory is newer
+                            continue;
+                        }
+                    }
+
+                    FileUtils.copyFile(file, targetFile);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

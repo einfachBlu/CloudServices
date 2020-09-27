@@ -24,7 +24,10 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -98,6 +101,22 @@ public final class BungeeConnectorService extends ConnectorService {
 
             this.registerServer(gameServer);
         }
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            PlayerSendToServerPacket playerSendToServerPacket = (PlayerSendToServerPacket) packet;
+
+            UUID playerUniqueId = playerSendToServerPacket.getPlayer();
+            String serverName = playerSendToServerPacket.getServerName();
+
+            ServerInfo serverInfo = ProxyServer.getInstance().getServers().getOrDefault(serverName, null);
+            ProxiedPlayer player = ProxyServer.getInstance().getPlayer(playerUniqueId);
+
+            if (serverInfo != null && player != null) {
+                player.connect(serverInfo);
+            }
+
+            packet.sendBack();
+        }, "PlayerSendToServer");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             GameServerUpdatePacket gameServerUpdatePacket = (GameServerUpdatePacket) packet;
@@ -203,6 +222,14 @@ public final class BungeeConnectorService extends ConnectorService {
             ServerInfo finalCurrentServer = currentServer;
             fallbackServers = fallbackServers.stream()
                     .filter(gameServerInformation -> !gameServerInformation.getName().equalsIgnoreCase(finalCurrentServer.getName()))
+                    .filter(gameServerInformation -> {
+                        String permission = gameServerInformation.getCloudType().getPermission();
+                        if (permission == null || permission.equalsIgnoreCase("")) {
+                            return true;
+                        }
+
+                        return player.hasPermission(permission);
+                    })
                     .collect(Collectors.toList());
         }
 
@@ -210,8 +237,7 @@ public final class BungeeConnectorService extends ConnectorService {
             return null;
         }
 
-        GameServerInformation fallbackServer = fallbackServers.get(new Random().nextInt(fallbackServers.size()));
-
+        GameServerInformation fallbackServer = fallbackServers.get(0);
         return ProxyServer.getInstance().getServers().get(fallbackServer.getName());
     }
 }

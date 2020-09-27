@@ -88,28 +88,42 @@ public final class PacketHandler extends DefaultPacketHandler {
                         "temporary/" + gameServerInformation.getCloudType().getName() + "/" + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString());
 
                 if (gameServerInformation.getCloudType().isStaticService()) {
-                    tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
-                            "static/" + gameServerInformation.getName());
+                    if (gameServerInformation.getCloudType().getTemplatePath() != null &&
+                            !gameServerInformation.getCloudType().getTemplatePath().equalsIgnoreCase("")) {
+
+                        tempDirectory = new File(gameServerInformation.getCloudType().getTemplatePath());
+                    } else {
+                        tempDirectory = new File(ServerStarter.getRootDirectory(), "" +
+                                "static/" + gameServerInformation.getName());
+                    }
                 }
 
                 gameServerInformation.setHost(this.getAddressResolver().getIPAddress());
                 gameServerInformation.setTemporaryPath(tempDirectory.getAbsolutePath());
 
                 // Check if port is in use
-                if (this.getAddressResolver().isPortInUse(gameServerInformation.getHost(), gameServerInformation.getPort())) {
+                int port = gameServerInformation.getCloudType().getPortStart();
+
+                while (port <= gameServerInformation.getCloudType().getPortEnd()) {
+                    if (!this.getAddressResolver().isPortInUse(gameServerInformation.getHost(), port)) {
+                        break;
+                    }
+
+                    port++;
+                    //System.out.println("Port " + gameServerInformation.getHost() + ":" + port + " is already in use? Increasing port");
+                }
+
+                if (port > gameServerInformation.getCloudType().getPortEnd()) {
                     gameServerInformation.setState(GameServerInformation.State.OFFLINE);
                     this.getGameServerStorage().saveGameServer(gameServerInformation);
-                    // Information:
-                    // Its also possible to increase the port here and check if any other is free on this host, set
-                    // the new port and save the data then. The current case is very rare normally, so we leave
-                    // it like this for now
-                    requestGameServerStartPacket.setErrorMessage("The Port is already in use!");
+                    requestGameServerStartPacket.setErrorMessage("All Ports are already in use with the given CloudType Range!");
                     requestGameServerStartPacket.sendBack();
                     return;
                 }
 
                 // Save new State, Host & TemporaryPath
                 gameServerInformation.setState(GameServerInformation.State.STARTING);
+                gameServerInformation.setPort(port);
                 this.getGameServerStorage().saveGameServer(gameServerInformation);
 
                 // Create Directory

@@ -76,6 +76,10 @@ public final class PacketHandler extends DefaultPacketHandler {
                 return;
             }
 
+            if (packet instanceof RequestServiceStopPacket) {
+                System.exit(0);
+            }
+
             if (packet instanceof RequestGameServerStartPacket) {
                 RequestGameServerStartPacket requestGameServerStartPacket = (RequestGameServerStartPacket) packet;
                 GameServerInformation gameServerInformation = requestGameServerStartPacket.getGameServerInformation();

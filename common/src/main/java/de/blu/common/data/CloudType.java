@@ -17,6 +17,7 @@ public class CloudType {
     private int portStart = 0;
     private int portEnd = 0;
     private int priority = 0;
+    private int maxPlayers = 0;
     private int memory = 0;
     private String permission = null;
     private boolean staticService = false;

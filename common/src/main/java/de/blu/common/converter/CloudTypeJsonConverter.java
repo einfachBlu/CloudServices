@@ -41,6 +41,7 @@ public final class CloudTypeJsonConverter {
             long portEnd = (long) data.get("portEnd");
             long memory = (long) data.get("memory");
             long priority = (long) data.get("priority");
+            long maxPlayers = (long) data.get("maxPlayers");
             String permission = (String) data.get("permission");
             JSONArray hosts = (JSONArray) data.get("hosts");
             JSONArray javaParameters = (JSONArray) data.get("javaParameters");
@@ -53,6 +54,7 @@ public final class CloudTypeJsonConverter {
             cloudType.setPortEnd((int) portEnd);
             cloudType.setMemory((int) memory);
             cloudType.setPriority((int) priority);
+            cloudType.setMaxPlayers((int) maxPlayers);
             cloudType.setPermission(permission);
 
             for (Object hostName : hosts) {

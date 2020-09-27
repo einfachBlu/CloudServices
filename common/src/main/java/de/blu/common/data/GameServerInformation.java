@@ -18,12 +18,23 @@ public class GameServerInformation {
     private int port = 0;
     private String temporaryPath = "";
     private int onlinePlayers = 0;
-    private int maxPlayers = 100;
+    private int maxPlayers = 20;
+    private String gameState = GameState.LOADING.name();
     private ServiceInformation serverStarterInformation;
     private State state = State.CREATED;
 
     public enum State {
         CREATED, STARTING, ONLINE, STOPPING, OFFLINE
+    }
+
+    public enum GameState {
+        LOADING, LOBBY, INGAME, END
+    }
+
+    public void setCloudType(CloudType cloudType) {
+        this.cloudType = cloudType;
+
+        this.setMaxPlayers(this.getCloudType().getMaxPlayers());
     }
 
     @Override

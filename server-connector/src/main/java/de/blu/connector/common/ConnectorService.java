@@ -22,7 +22,10 @@ import de.blu.connector.common.sender.ServerStartedSender;
 import lombok.Getter;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 @Getter
@@ -132,7 +135,13 @@ public class ConnectorService {
         gameServerInformation.setState(GameServerInformation.State.ONLINE);
         this.getGameServerLoader().loadAllServers();
         this.getGameServerStorage().saveGameServer(gameServerInformation);
-        this.getServerStartedSender().sendServerStarted(gameServerInformation);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ConnectorService.this.getServerStartedSender().sendServerStarted(gameServerInformation);
+            }
+        }, TimeUnit.SECONDS.toMillis(6));
 
         this.selfGameServerInformation = gameServerInformation;
         this.getSelfGameServerInformationProvider().setGameServerInformation(gameServerInformation);

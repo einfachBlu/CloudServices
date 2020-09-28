@@ -10,6 +10,8 @@ import de.blu.connector.common.sender.GameServerUpdateSender;
 import de.blu.connector.common.sender.PlayerServerSender;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -42,6 +44,10 @@ public abstract class CloudAPI {
         return this.getSelfGameServerInformationProvider().getGameServerInformation();
     }
 
+    public Collection<GameServerInformation> getAllServers() {
+        return new ArrayList<>(this.getGameServerRepository().getGameServers());
+    }
+
     public int getOnlinePlayers() {
         return this.getGameServerRepository().getGameServers().stream()
                 .mapToInt(GameServerInformation::getOnlinePlayers).sum();
@@ -60,6 +66,11 @@ public abstract class CloudAPI {
 
         this.getGameServerStorage().saveGameServer(gameServerInformation);
         this.getGameServerUpdateSender().sendServerUpdated();
+    }
+
+    public void sendToServer(UUID player, String serverName) {
+        this.sendToServer(player, serverName, aVoid -> {
+        });
     }
 
     public void sendToServer(UUID player, String serverName, Consumer<Void> doneCallback) {

@@ -69,7 +69,7 @@ public final class ServiceKeepAlive {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                long time = System.currentTimeMillis();
+                //long time = System.currentTimeMillis();
                 ServiceKeepAlive.this.handleTimerRun();
                 //System.out.println("Needed Time for KeepAlive Check: " + (System.currentTimeMillis() - time) + "ms");
             }
@@ -79,8 +79,10 @@ public final class ServiceKeepAlive {
     private void handleTimerRun() {
         this.update();
 
+        /*
         Collection<ServiceInformation> services = new ArrayList<>(this.getServiceRepository().getServices().values());
 
+        We remove this for now because it mostly calls false
         for (ServiceInformation serviceInformation : services) {
             //System.out.println("&bCheck for KeepAlive: " + serviceInformation.getIdentifier().toString());
             if (ServiceKeepAlive.this.getRedisConnection().contains("service." + serviceInformation.getIdentifier().toString())) {
@@ -89,6 +91,7 @@ public final class ServiceKeepAlive {
 
             this.getServiceConnectorBroadcast().broadcastDisconnect(serviceInformation);
         }
+         */
     }
 
     public void update() {

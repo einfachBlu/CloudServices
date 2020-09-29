@@ -7,18 +7,15 @@ import de.blu.common.service.ServiceInformation;
 import de.blu.common.service.Services;
 import lombok.Getter;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
 @Getter
 public final class ServiceRepository {
 
-    public static final int REDIS_CACHE_TIME = 10000;
-    public static final long KEEP_ALIVE_TIME = 8000;
+    public static final int REDIS_CACHE_TIME = 25000;
+    public static final long KEEP_ALIVE_TIME = 4000;
 
     @Inject
     private SelfServiceInformation selfServiceInformation;
@@ -40,6 +37,10 @@ public final class ServiceRepository {
     }
 
     public Collection<ServiceInformation> getServicesBy(Services service) {
+        if (service == null) {
+            return Collections.emptyList();
+        }
+
         return this.getServices().values().stream()
                 .filter(serviceInformation -> serviceInformation.getName().equalsIgnoreCase(service.getServiceName()))
                 .collect(Collectors.toList());

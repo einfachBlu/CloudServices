@@ -8,8 +8,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class ServiceInformation {
-    private String name;
-    private UUID identifier;
+    private String name = "";
+    private UUID identifier = UUID.randomUUID();
 
     @Override
     public boolean equals(Object o) {

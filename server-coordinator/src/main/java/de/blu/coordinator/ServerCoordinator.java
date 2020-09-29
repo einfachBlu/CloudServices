@@ -15,15 +15,14 @@ import de.blu.common.loader.GameServerLoader;
 import de.blu.common.logging.Logger;
 import de.blu.common.logging.LoggingInitializer;
 import de.blu.common.repository.CloudTypeRepository;
-import de.blu.common.service.SelfServiceInformation;
-import de.blu.common.service.ServiceConnectorBroadcast;
-import de.blu.common.service.ServiceKeepAlive;
-import de.blu.common.service.StaticIdentifierStorage;
+import de.blu.common.repository.ServiceRepository;
+import de.blu.common.service.*;
 import de.blu.common.setup.FileRootSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
 import de.blu.coordinator.listener.PacketHandler;
 import de.blu.coordinator.module.ModuleSettings;
+import de.blu.coordinator.repository.ServerStarterHostRepository;
 import de.blu.coordinator.request.ResourceRequester;
 import de.blu.coordinator.server.CheckForServers;
 import lombok.Getter;
@@ -136,7 +135,13 @@ public final class ServerCoordinator {
     private GameServerLoader gameServerLoader;
 
     @Inject
+    private ServerStarterHostRepository serverStarterHostRepository;
+
+    @Inject
     private StaticIdentifierStorage staticIdentifierStorage;
+
+    @Inject
+    private ServiceRepository serviceRepository;
 
     private Logger logger;
 
@@ -214,6 +219,13 @@ public final class ServerCoordinator {
         this.getGameServerLoader().loadAllServers();
 
         this.getLogger().info("ServerCoordinator is now started.");
+
+        // Request Hosts from all ServerStarters
+        for (ServiceInformation serviceInformation : this.getServiceRepository().getServicesBy(Services.SERVER_STARTER)) {
+            this.getResourceRequester().requestResources(requestResourcesPacket -> {
+                this.getServerStarterHostRepository().getServerStarterHosts().put(serviceInformation.getIdentifier(), requestResourcesPacket.getHostName());
+            }, serviceInformation);
+        }
 
         this.getCheckForServers().startTimer();
 

@@ -20,6 +20,7 @@ public class GameServerInformation {
     private int onlinePlayers = 0;
     private int maxPlayers = 20;
     private String gameState = GameState.LOADING.name();
+    private String extra = "";
     private ServiceInformation serverStarterInformation;
     private State state = State.CREATED;
     private boolean manuallyStarted = false;

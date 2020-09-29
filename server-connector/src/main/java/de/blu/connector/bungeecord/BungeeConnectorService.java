@@ -227,6 +227,7 @@ public final class BungeeConnectorService extends ConnectorService {
             ServerInfo finalCurrentServer = currentServer;
             fallbackServers = fallbackServers.stream()
                     .filter(gameServerInformation -> !gameServerInformation.getName().equalsIgnoreCase(finalCurrentServer.getName()))
+                    .filter(gameServerInformation -> gameServerInformation.getState().equals(GameServerInformation.State.ONLINE))
                     .filter(gameServerInformation -> {
                         String permission = gameServerInformation.getCloudType().getPermission();
                         if (permission == null || permission.equalsIgnoreCase("")) {

@@ -12,6 +12,7 @@ import de.blu.coordinator.request.ResourceRequester;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,14 @@ public final class ServerStarterReceiver {
             for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
                 this.getResourceRequester().requestResources(requestResourcesPacket -> {
                     serviceResources.put(serviceInformation, requestResourcesPacket);
+
+                    /*
+                    System.out.println("&bReceived Resources of ServerStarter " + serviceInformation.getIdentifier().toString() + ":");
+                    System.out.println("hostname: " + requestResourcesPacket.getHostName());
+                    System.out.println("averageCpu: " + requestResourcesPacket.getAverageCpuLoad());
+                    System.out.println("usedMemory: " + requestResourcesPacket.getUsedMemory());
+                    System.out.println("maxMemory: " + requestResourcesPacket.getMaxMemory());
+                    */
                 }, serviceInformation);
             }
 
@@ -51,7 +60,7 @@ public final class ServerStarterReceiver {
             whileLoop:
             while (true) {
                 if (System.currentTimeMillis() - time >= timeout) {
-                    System.out.println("Missing a Callback of a ResourceRequest! timed out.");
+                    System.out.println("&cMissing a Callback of a ResourceRequest! timed out.");
                     bestServerStarterCallback.accept(null);
                     break;
                 }

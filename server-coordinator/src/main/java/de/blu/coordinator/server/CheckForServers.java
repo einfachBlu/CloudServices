@@ -8,11 +8,13 @@ import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.Services;
+import de.blu.coordinator.repository.ServerStarterHostRepository;
 import de.blu.coordinator.request.ResourceRequester;
 import de.blu.coordinator.request.ServerStartRequester;
 import de.blu.coordinator.request.ServerStopRequester;
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,6 +53,9 @@ public final class CheckForServers {
 
     @Inject
     private ServerStopRequester serverStopRequester;
+
+    @Inject
+    private ServerStarterHostRepository serverStarterHostRepository;
 
     public void startTimer() {
         new Timer().schedule(new TimerTask() {
@@ -130,7 +135,6 @@ public final class CheckForServers {
         // Check which CloudType needs to be started and set by priority
         CloudType targetCloudType = null;
         for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
-
             int currentOnlineAmount = this.getGameServerRepository().getGameServersByCloudType(cloudType).size();
 
             if (cloudType.isStaticService() && currentOnlineAmount >= 1) {
@@ -156,6 +160,22 @@ public final class CheckForServers {
                         .sum();
 
                 if (playersInCloudType <= maxPlayersForCloudType / 2) {
+                    continue;
+                }
+            }
+
+            if (cloudType.getHosts().size() > 0) {
+                // Check if there is at least one serverstarter to start this cloudtype
+                boolean found = false;
+                for (String host : this.getServerStarterHostRepository().getServerStarterHosts().values()) {
+                    if (cloudType.getHosts().contains(host)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    // Cant start this CloudType because no ServerStarter can start it
                     continue;
                 }
             }

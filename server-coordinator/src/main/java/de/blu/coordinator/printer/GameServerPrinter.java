@@ -31,6 +31,7 @@ public final class GameServerPrinter {
         System.out.println(this.getTabString(1) + "&emanuallyStarted: &r" + gameServerInformation.isManuallyStarted());
         System.out.println(this.getTabString(1) + "&estate: &r" + gameServerInformation.getState().name());
         System.out.println(this.getTabString(1) + "&egameState: &r" + gameServerInformation.getGameState());
+        System.out.println(this.getTabString(1) + "&eextra: &r" + gameServerInformation.getExtra());
         System.out.println(this.getTabString(1) + "&eonlinePlayers: &r" + gameServerInformation.getOnlinePlayers());
         System.out.println(this.getTabString(1) + "&emaxPlayers: &r" + gameServerInformation.getMaxPlayers());
         System.out.println(this.getTabString(1) + "&ehost: &r" + gameServerInformation.getHost());

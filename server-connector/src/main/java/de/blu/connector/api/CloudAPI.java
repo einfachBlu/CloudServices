@@ -68,6 +68,14 @@ public abstract class CloudAPI {
         this.getGameServerUpdateSender().sendServerUpdated();
     }
 
+    public void setExtra(String extra) {
+        GameServerInformation gameServerInformation = this.getGameServerInformation();
+        gameServerInformation.setExtra(extra);
+
+        this.getGameServerStorage().saveGameServer(gameServerInformation);
+        this.getGameServerUpdateSender().sendServerUpdated();
+    }
+
     public void sendToServer(UUID player, String serverName) {
         this.sendToServer(player, serverName, aVoid -> {
         });

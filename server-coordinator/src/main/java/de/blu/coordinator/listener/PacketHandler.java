@@ -73,6 +73,10 @@ public final class PacketHandler extends DefaultPacketHandler {
                     return;
                 }
 
+                if (serviceInformation.getService() == null) {
+                    System.out.println("Unknown Service Type: " + serviceInformation.getName());
+                }
+
                 System.out.println("&aService connected: " + serviceInformation.getName() + " (" + serviceInformation.getIdentifier().toString() + ")");
 
                 this.getServiceRepository().addService(serviceInformation);

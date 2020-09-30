@@ -23,6 +23,8 @@ public class ServiceInformation {
             return Services.SERVER_COORDINATOR;
         } else if (Services.SERVER_STARTER.getServiceName().equalsIgnoreCase(this.getName())) {
             return Services.SERVER_STARTER;
+        } else if (Services.SERVER_CONNECTOR.getServiceName().equalsIgnoreCase(this.getName())) {
+            return Services.SERVER_CONNECTOR;
         }
 
         return null;

@@ -54,7 +54,6 @@ public final class LibraryUtils {
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/jline/jline/2.12/jline-2.12.jar", "jline-2.12.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/jcraft/jsch/0.1.55/jsch-0.1.55.jar", "jsch-0.1.55.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/commons-io/commons-io/2.5/commons-io-2.5.jar", "commons-io-2.5.jar");
-        //LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar", "commons-lang-2.6.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/github/wolf480pl/jline-log4j2-appender/1.0.0/jline-log4j2-appender-1.0.0.jar", "jline-log4j2-appender-1.0.0.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/biz/paluch/redis/lettuce/4.2.2.Final/lettuce-4.2.2.Final.jar", "lettuce-4.2.2.Final.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/io/reactivex/rxjava/1.0.4/rxjava-1.0.4.jar", "rxjava-1.0.4.jar");
@@ -69,6 +68,13 @@ public final class LibraryUtils {
         LibraryUtils.downloadLibrary("https://dl.bintray.com/typesafe/maven-releases/org/hyperic/sigar/1.6.4/sigar-1.6.4.jar", "sigar-1.6.4.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/sparkjava/spark-core/2.3/spark-core-2.3.jar", "spark-core-2.3.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar", "servlet-api-2.3.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-servlet/9.4.31.v20200723/jetty-servlet-9.4.31.v20200723.jar", "jetty-servlet-9.4.31.v20200723.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-server/9.4.31.v20200723/jetty-server-9.4.31.v20200723.jar", "jetty-server-9.4.31.v20200723.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util/9.4.31.v20200723/jetty-util-9.4.31.v20200723.jar", "jetty-util-9.4.31.v20200723.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http/9.4.31.v20200723/jetty-http-9.4.31.v20200723.jar", "jetty-http-9.4.31.v20200723.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar", "javax.servlet-api-3.1.0.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io/9.4.31.v20200723/jetty-io-9.4.31.v20200723.jar", "jetty-io-9.4.31.v20200723.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/websocket-server/9.4.31.v20200723/websocket-server-9.4.31.v20200723.jar", "websocket-server-9.4.31.v20200723.jar");
     }
 
     /**

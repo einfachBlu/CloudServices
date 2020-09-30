@@ -43,6 +43,7 @@ public final class StartServerRequest extends RestAPIListener {
             }
 
             this.getServerStartRequester().requestGameServerStart(cloudType, true);
+
             return "success";
         });
     }

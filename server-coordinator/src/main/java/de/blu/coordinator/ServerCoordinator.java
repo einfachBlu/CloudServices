@@ -8,6 +8,7 @@ import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
+import de.blu.common.config.LogsConfig;
 import de.blu.common.config.RedisConfig;
 import de.blu.common.data.CloudType;
 import de.blu.common.database.redis.RedisConnection;
@@ -18,6 +19,7 @@ import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.ServiceRepository;
 import de.blu.common.service.*;
 import de.blu.common.setup.FileRootSetup;
+import de.blu.common.setup.HastebinLogsSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
 import de.blu.coordinator.listener.PacketHandler;
@@ -100,6 +102,12 @@ public final class ServerCoordinator {
 
     @Inject
     private RedisCredentialsSetup redisCredentialsSetup;
+
+    @Inject
+    private LogsConfig logsConfig;
+
+    @Inject
+    private HastebinLogsSetup hastebinLogsSetup;
 
     @Inject
     private FileRootConfig fileRootConfig;
@@ -191,6 +199,13 @@ public final class ServerCoordinator {
         }
 
         this.getLogger().info("Connected to Redis.");
+
+        configFile = new File(new File(fileRootDirectory, "Configs"), "logs.properties");
+        if (!configFile.exists()) {
+            this.getHastebinLogsSetup().startSetup(configFile);
+        }
+
+        this.getLogsConfig().load(configFile);
 
         this.getPacketHandler().registerAll();
 

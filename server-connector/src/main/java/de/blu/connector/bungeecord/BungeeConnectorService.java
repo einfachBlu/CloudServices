@@ -9,10 +9,13 @@ import de.blu.common.network.packet.packets.*;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
+import de.blu.common.storage.LogsStorage;
 import de.blu.connector.bungeecord.api.event.ServerStartedEvent;
 import de.blu.connector.bungeecord.api.event.ServerStoppedEvent;
 import de.blu.connector.bungeecord.api.event.ServerUpdatedEvent;
 import de.blu.connector.bungeecord.command.HubCommand;
+import de.blu.connector.bungeecord.command.LogBungeeCommand;
+import de.blu.connector.bungeecord.command.LogCommand;
 import de.blu.connector.bungeecord.listener.OnlinePlayersUpdater;
 import de.blu.connector.bungeecord.listener.ServerKickListener;
 import de.blu.connector.common.ConnectorService;
@@ -50,10 +53,19 @@ public final class BungeeConnectorService extends ConnectorService {
     private HubCommand hubCommand;
 
     @Inject
+    private LogCommand logCommand;
+
+    @Inject
+    private LogBungeeCommand logBungeeCommand;
+
+    @Inject
     private Plugin plugin;
 
     @Inject
     private Injector injector;
+
+    @Inject
+    private LogsStorage logsStorage;
 
     private Map<UUID, String> serverUniqueIdByName = new HashMap<>();
 
@@ -65,6 +77,10 @@ public final class BungeeConnectorService extends ConnectorService {
 
         // Register Command
         ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getHubCommand());
+        if (this.getLogsStorage().isEnabled()) {
+            ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getLogCommand());
+            ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getLogBungeeCommand());
+        }
 
         // Register Listener
         ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getServerKickListener());

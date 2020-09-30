@@ -3,14 +3,13 @@ package de.blu.starter.watch;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.config.FileRootConfig;
+import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
+import de.blu.common.storage.LogsStorage;
 import de.blu.starter.sender.ServerStoppedSender;
 import lombok.Getter;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Timer;
@@ -27,6 +26,9 @@ public final class ServerWatcher {
 
     @Inject
     private FileRootConfig fileRootConfig;
+
+    @Inject
+    private LogsStorage logsStorage;
 
     public void startTimer() {
         new Timer().schedule(new TimerTask() {
@@ -63,6 +65,15 @@ public final class ServerWatcher {
                 }
 
                 toRemove.add(gameServerInformation);
+
+                File logFile = null;
+                if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUNGEECORD)) {
+                    logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/proxy.log.0");
+                } else if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUKKIT)) {
+                    logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/latest.log");
+                }
+
+                this.getLogsStorage().postUrl(gameServerInformation.getUniqueId(), logFile, -1);
                 this.getServerStoppedSender().sendServerStopped(gameServerInformation);
             }
 

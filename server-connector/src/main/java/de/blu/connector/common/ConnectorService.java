@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.config.FileRootConfig;
+import de.blu.common.config.LogsConfig;
 import de.blu.common.config.RedisConfig;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
@@ -15,6 +16,7 @@ import de.blu.common.service.SelfServiceInformation;
 import de.blu.common.service.ServiceConnectorBroadcast;
 import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.service.StaticIdentifierStorage;
+import de.blu.common.setup.HastebinLogsSetup;
 import de.blu.common.storage.GameServerStorage;
 import de.blu.connector.common.listener.PacketHandler;
 import de.blu.connector.common.provider.SelfGameServerInformationProvider;
@@ -71,6 +73,9 @@ public class ConnectorService {
     private FileRootConfig fileRootConfig;
 
     @Inject
+    private LogsConfig logsConfig;
+
+    @Inject
     private SelfGameServerInformationProvider selfGameServerInformationProvider;
 
     @Inject
@@ -108,6 +113,11 @@ public class ConnectorService {
         }
 
         System.out.println("Connected to Redis.");
+
+        configFile = new File(new File(fileRoot, "Configs"), "logs.properties");
+        if (configFile.exists()) {
+            this.getLogsConfig().load(configFile);
+        }
 
         this.getPacketHandler().registerAll();
         this.getServiceKeepAlive().init();

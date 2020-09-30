@@ -2,6 +2,7 @@ package de.blu.starter.template;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.blu.common.data.CloudType;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.storage.GameServerStorage;
@@ -36,7 +37,7 @@ public final class TemporaryDirectoryRemover {
             public void run() {
                 TemporaryDirectoryRemover.this.checkForDirectories();
             }
-        }, 0, CHECK_INTERVAL);
+        }, CHECK_INTERVAL, CHECK_INTERVAL);
     }
 
     private void checkForDirectories() {
@@ -49,12 +50,6 @@ public final class TemporaryDirectoryRemover {
             for (File temporaryDirectory : cloudTypeTempDirectory.listFiles()) {
                 if (this.getRedisConnection().contains("gameserver." + temporaryDirectory.getName())) {
                     continue;
-                }
-
-                try {
-                    FileUtils.deleteDirectory(temporaryDirectory);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         }

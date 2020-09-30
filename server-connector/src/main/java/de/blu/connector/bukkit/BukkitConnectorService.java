@@ -8,9 +8,11 @@ import de.blu.common.network.packet.packets.*;
 import de.blu.common.network.packet.repository.PacketListenerRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.repository.ServiceRepository;
+import de.blu.common.storage.LogsStorage;
 import de.blu.connector.bukkit.api.event.ServerStartedEvent;
 import de.blu.connector.bukkit.api.event.ServerStoppedEvent;
 import de.blu.connector.bukkit.api.event.ServerUpdatedEvent;
+import de.blu.connector.bukkit.command.LogBukkitCommand;
 import de.blu.connector.bukkit.listener.JoinPermissionValidator;
 import de.blu.connector.bukkit.listener.OnlinePlayersUpdater;
 import de.blu.connector.common.ConnectorService;
@@ -43,15 +45,21 @@ public final class BukkitConnectorService extends ConnectorService {
     private GameServerRepository gameServerRepository;
 
     @Inject
+    private LogsStorage logsStorage;
+
+    @Inject
     private Injector injector;
 
     @Override
     public void onEnable() {
         super.onEnable();
 
+        if (this.getLogsStorage().isEnabled()) {
+            this.getPlugin().getCommand("logbukkit").setExecutor(this.getInjector().getInstance(LogBukkitCommand.class));
+        }
+
         this.getPlugin().getServer().getPluginManager().registerEvents(this.getJoinPermissionValidator(), this.getPlugin());
         this.getPlugin().getServer().getPluginManager().registerEvents(this.getOnlinePlayersUpdater(), this.getPlugin());
-
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             GameServerUpdatePacket gameServerUpdatePacket = (GameServerUpdatePacket) packet;

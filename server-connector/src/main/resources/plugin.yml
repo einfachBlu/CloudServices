@@ -2,3 +2,6 @@ name: BukkitConnector
 main: de.blu.connector.bukkit.BukkitConnectorPlugin
 version: 1.0.0
 author: Blu
+commands:
+  logbukkit:
+    permission: command.logbukkit

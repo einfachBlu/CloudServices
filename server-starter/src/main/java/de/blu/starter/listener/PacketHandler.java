@@ -58,6 +58,11 @@ public final class PacketHandler extends DefaultPacketHandler {
                     requestResourcesPacket.setUsedMemory(usedMemory);
                     requestResourcesPacket.setMaxMemory(maxMemory);
                     requestResourcesPacket.setHostName(sigar.getNetInfo().getHostName());
+
+                    System.out.println("Current Resources on this Server-Starter:");
+                    System.out.println("Average CpuLoad: " + cpuLoad);
+                    System.out.println("used Memory: " + usedMemory);
+                    System.out.println("max Memory: " + maxMemory);
                 } catch (SigarException e) {
                     e.printStackTrace();
                 }

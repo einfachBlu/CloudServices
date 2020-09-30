@@ -7,9 +7,14 @@ plugins {
 group 'de.blu'
 version '1.1.0-SNAPSHOT'
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 shadowJar {
     relocate 'io.netty', 'shadow.io.netty'
     relocate 'io.lettuce', 'shadow.io.lettuce'
+    relocate 'commons-io', 'shadow.commons-io'
 }
 
 dependencies {
@@ -24,7 +29,7 @@ dependencies {
     compileOnly 'net.md-5:bungeecord-api:1.16-R0.4-SNAPSHOT'
     compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
 
-    compileOnly 'commons-io:commons-io:2.5'
+    implementation 'commons-io:commons-io:2.5'
 }
 
 shadowJar.doLast {

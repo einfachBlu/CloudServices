@@ -8,6 +8,7 @@ import de.blu.common.cloudtype.CloudTypeConfigLoader;
 import de.blu.common.command.CommandRegister;
 import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
+import de.blu.common.config.LogsConfig;
 import de.blu.common.config.RedisConfig;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
@@ -25,6 +26,7 @@ import de.blu.common.service.ServiceConnectorBroadcast;
 import de.blu.common.service.ServiceKeepAlive;
 import de.blu.common.service.StaticIdentifierStorage;
 import de.blu.common.setup.FileRootSetup;
+import de.blu.common.setup.HastebinLogsSetup;
 import de.blu.common.setup.RedisCredentialsSetup;
 import de.blu.common.util.LibraryUtils;
 import de.blu.starter.listener.PacketHandler;
@@ -157,6 +159,12 @@ public final class ServerStarter {
     @Inject
     private ServerWatcher serverWatcher;
 
+    @Inject
+    private LogsConfig logsConfig;
+
+    @Inject
+    private HastebinLogsSetup hastebinLogsSetup;
+
     private Logger logger;
 
     @Inject
@@ -205,6 +213,13 @@ public final class ServerStarter {
         }
 
         this.getLogger().info("Connected to Redis.");
+
+        configFile = new File(new File(fileRootDirectory, "Configs"), "logs.properties");
+        if (!configFile.exists()) {
+            this.getHastebinLogsSetup().startSetup(configFile);
+        }
+
+        this.getLogsConfig().load(configFile);
 
         this.getPacketHandler().registerAll();
         this.getServiceKeepAlive().init();

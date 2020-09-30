@@ -10,6 +10,7 @@ import de.blu.common.command.ConsoleInputReader;
 import de.blu.common.config.FileRootConfig;
 import de.blu.common.config.LogsConfig;
 import de.blu.common.config.RedisConfig;
+import de.blu.common.config.WebTokenConfig;
 import de.blu.common.data.CloudType;
 import de.blu.common.database.redis.RedisConnection;
 import de.blu.common.loader.GameServerLoader;
@@ -26,6 +27,7 @@ import de.blu.coordinator.listener.PacketHandler;
 import de.blu.coordinator.module.ModuleSettings;
 import de.blu.coordinator.repository.ServerStarterHostRepository;
 import de.blu.coordinator.request.ResourceRequester;
+import de.blu.coordinator.rest.RestApiInitializer;
 import de.blu.coordinator.server.CheckForServers;
 import lombok.Getter;
 
@@ -113,6 +115,9 @@ public final class ServerCoordinator {
     private FileRootConfig fileRootConfig;
 
     @Inject
+    private WebTokenConfig webTokenConfig;
+
+    @Inject
     private FileRootSetup fileRootSetup;
 
     @Inject
@@ -150,6 +155,9 @@ public final class ServerCoordinator {
 
     @Inject
     private ServiceRepository serviceRepository;
+
+    @Inject
+    private RestApiInitializer restApiInitializer;
 
     private Logger logger;
 
@@ -207,6 +215,13 @@ public final class ServerCoordinator {
 
         this.getLogsConfig().load(configFile);
 
+        configFile = new File(new File(fileRootDirectory, "Configs"), "webtoken.properties");
+        if (!configFile.exists()) {
+            this.getWebTokenConfig().save(configFile);
+        }
+
+        this.getWebTokenConfig().load(configFile);
+
         this.getPacketHandler().registerAll();
 
         try {
@@ -241,6 +256,8 @@ public final class ServerCoordinator {
                 this.getServerStarterHostRepository().getServerStarterHosts().put(serviceInformation.getIdentifier(), requestResourcesPacket.getHostName());
             }, serviceInformation);
         }
+
+        this.getRestApiInitializer().init();
 
         this.getCheckForServers().startTimer();
 

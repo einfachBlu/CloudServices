@@ -21,6 +21,7 @@ dependencies {
     implementation 'io.netty:netty-all:4.1.48.Final'
     implementation 'io.lettuce:lettuce-core:5.2.2.RELEASE'
     implementation 'commons-io:commons-io:2.5'
+    implementation 'org.springframework.security:spring-security-core:5.4.0'
 }
 
 

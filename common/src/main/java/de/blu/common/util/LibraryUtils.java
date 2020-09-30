@@ -67,6 +67,8 @@ public final class LibraryUtils {
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar", "commons-math3-3.6.1.jar");
         LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/org/yaml/snakeyaml/1.17/snakeyaml-1.17.jar", "snakeyaml-1.17.jar");
         LibraryUtils.downloadLibrary("https://dl.bintray.com/typesafe/maven-releases/org/hyperic/sigar/1.6.4/sigar-1.6.4.jar", "sigar-1.6.4.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/com/sparkjava/spark-core/2.3/spark-core-2.3.jar", "spark-core-2.3.jar");
+        LibraryUtils.downloadLibrary("https://repo1.maven.org/maven2/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar", "servlet-api-2.3.jar");
     }
 
     /**

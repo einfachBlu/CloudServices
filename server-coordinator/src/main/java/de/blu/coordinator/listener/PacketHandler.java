@@ -65,30 +65,39 @@ public final class PacketHandler extends DefaultPacketHandler {
             }
         }, "ServerStarted");
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
-            ServiceInformation serviceInformation = serviceConnectedPacket.getServiceInformation();
-            System.out.println("&aService connected: " + serviceInformation.getName() + " (" + serviceInformation.getIdentifier().toString() + ")");
+            if (packet instanceof ServiceConnectedPacket) {
+                ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;
+                ServiceInformation serviceInformation = serviceConnectedPacket.getServiceInformation();
 
-            this.getServiceRepository().addService(serviceInformation);
-
-            if (serviceInformation.getService().equals(Services.SERVER_STARTER)) {
-                // Host already stored from previous cache
-                if (this.getServerStarterHostRepository().getServerStarterHosts().containsKey(serviceInformation.getIdentifier())) {
+                if (serviceInformation == null) {
                     return;
                 }
 
-                // Request Hostname
-                this.getResourceRequester().requestResources(requestResourcesPacket -> {
-                    this.getServerStarterHostRepository().getServerStarterHosts().put(serviceInformation.getIdentifier(), requestResourcesPacket.getHostName());
-                }, serviceInformation);
+                System.out.println("&aService connected: " + serviceInformation.getName() + " (" + serviceInformation.getIdentifier().toString() + ")");
+
+                this.getServiceRepository().addService(serviceInformation);
+
+                if (serviceInformation.getService().equals(Services.SERVER_STARTER)) {
+                    // Host already stored from previous cache
+                    if (this.getServerStarterHostRepository().getServerStarterHosts().containsKey(serviceInformation.getIdentifier())) {
+                        return;
+                    }
+
+                    // Request Hostname
+                    this.getResourceRequester().requestResources(requestResourcesPacket -> {
+                        this.getServerStarterHostRepository().getServerStarterHosts().put(serviceInformation.getIdentifier(), requestResourcesPacket.getHostName());
+                    }, serviceInformation);
+                }
             }
         }, "ServiceConnected");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
-            ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
-            System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
+            if (packet instanceof ServiceDisconnectedPacket) {
+                ServiceDisconnectedPacket serviceDisconnectedPacket = (ServiceDisconnectedPacket) packet;
+                System.out.println("&cService disconnected: " + serviceDisconnectedPacket.getServiceInformation().getName() + " (" + serviceDisconnectedPacket.getServiceInformation().getIdentifier().toString() + ")");
 
-            this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
+                this.getServiceRepository().removeService(serviceDisconnectedPacket.getServiceInformation().getIdentifier());
+            }
         }, "ServiceDisconnected");
     }
 }

@@ -6,9 +6,12 @@ import de.blu.common.config.FileRootConfig;
 import de.blu.common.data.GameServerInformation;
 import lombok.Getter;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 @Getter
@@ -31,7 +34,7 @@ public final class GameServerStarter {
         try {
             Process process = new ProcessBuilder(
                     "/bin/sh", "-c",
-                    "screen -mdS " + fullServerName +
+                    "screen -dmS " + fullServerName +
                             " -L -Logfile " + logFile.getAbsolutePath() +
                             " /bin/sh -c '" +
                             "cd " + new File(gameServerInformation.getTemporaryPath()).getAbsolutePath() + " &&" +
@@ -46,9 +49,32 @@ public final class GameServerStarter {
                             this.convertParametersToString(gameServerInformation.getCloudType().getServerParameters()) +
                             "'"
             ).start();
+
+            process.waitFor(10, TimeUnit.SECONDS);
+
+            /*
+            // TEst
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    String command = "ls -A -1 /var/run/screen/S-${USER} | grep \"^[0-9]*\\.%s$\"";
+                    String filledCommand = String.format(command, fullServerName);
+
+                    String output = GameServerStarter.this.executeCommand(filledCommand);
+                    if (!output.equalsIgnoreCase("")) {
+                        System.out.println(fullServerName + " IS NOW STARTED AS SCREEN!");
+                    } else {
+                        System.out.println("FAILED:");
+                        System.out.println("CMD: " + filledCommand);
+                    }
+                }
+            }, 500, 500);
+            */
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         return true;

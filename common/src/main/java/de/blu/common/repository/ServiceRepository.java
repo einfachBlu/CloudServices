@@ -41,8 +41,20 @@ public final class ServiceRepository {
             return Collections.emptyList();
         }
 
+        List<ServiceInformation> nullReferences = this.getServices().values().stream()
+                .filter(serviceInformation -> serviceInformation.getName() == null)
+                .collect(Collectors.toList());
+
+        for (ServiceInformation serviceInformation : nullReferences) {
+            UUID uuid = this.getServices().entrySet().stream()
+                    .filter(entry -> entry.getValue().equals(serviceInformation))
+                    .findFirst().get().getKey();
+
+            this.getServices().remove(uuid);
+        }
+
         return this.getServices().values().stream()
-                .filter(serviceInformation -> serviceInformation.getName().equalsIgnoreCase(service.getServiceName()))
+                .filter(serviceInformation -> serviceInformation != null && serviceInformation.getName().equalsIgnoreCase(service.getServiceName()))
                 .collect(Collectors.toList());
     }
 }

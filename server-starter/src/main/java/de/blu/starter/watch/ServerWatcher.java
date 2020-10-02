@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 @Getter
@@ -73,7 +74,11 @@ public final class ServerWatcher {
                     logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/latest.log");
                 }
 
-                this.getLogsStorage().postUrl(gameServerInformation.getUniqueId(), logFile, -1);
+                if (logFile != null && logFile.exists()) {
+                    this.getLogsStorage().postUrl(gameServerInformation.getUniqueId(), logFile, -1);
+                }
+
+                System.out.println("ServerWatcher detected stopped screen for Server " + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString());
                 this.getServerStoppedSender().sendServerStopped(gameServerInformation);
             }
 
@@ -82,16 +87,13 @@ public final class ServerWatcher {
     }
 
     private boolean isScreenActive(GameServerInformation gameServerInformation) {
-        String command = "ls -A -1 /var/run/screen/S-${USER} | grep \"^[0-9]*\\.%s$\"";
+        String userName = System.getProperty("user.name");
+        String command = "ls -A -1 /var/run/screen/S-" + userName + " | grep \"^[0-9]*\\.%s$\"";
         String fullServerName = gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString();
         String filledCommand = String.format(command, fullServerName);
 
         String output = this.executeCommand(filledCommand);
-        if (output.equalsIgnoreCase("")) {
-            return false;
-        } else {
-            return true;
-        }
+        return !output.equalsIgnoreCase("");
     }
 
     public void killScreen(GameServerInformation gameServerInformation) {
@@ -103,18 +105,30 @@ public final class ServerWatcher {
 
     private String executeCommand(String command) {
         String line;
-        String strstatus = "";
+        String output = "";
         try {
-
             String[] cmd = {"/bin/sh", "-c", command};
-            Process p = Runtime.getRuntime().exec(cmd);
-            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            while ((line = in.readLine()) != null) {
-                strstatus = line;
-            }
-            in.close();
-        } catch (Exception e) {
+            /*
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command(cmd);
 
+            Process process = processBuilder.start();
+            */
+
+            Process process = Runtime.getRuntime().exec(cmd);
+            BufferedReader inputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            process.waitFor(5, TimeUnit.SECONDS);
+            while ((line = inputReader.readLine()) != null) {
+                output += line;
+            }
+            while ((line = errorReader.readLine()) != null) {
+                System.out.println("Error: " + line);
+            }
+
+            inputReader.close();
+            errorReader.close();
+        } catch (Exception e) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
@@ -122,13 +136,12 @@ public final class ServerWatcher {
             String stackTrace = sw.toString();
             int logerror = stackTrace.length();
             if (logerror > 500) {
-                strstatus = "Error:" + stackTrace.substring(0, 500);
+                output = "Error:" + stackTrace.substring(0, 500);
             } else {
-                strstatus = "Error:" + stackTrace.substring(0, logerror - 1);
-
+                output = "Error:" + stackTrace.substring(0, logerror - 1);
             }
         }
-        return strstatus;
 
+        return output;
     }
 }

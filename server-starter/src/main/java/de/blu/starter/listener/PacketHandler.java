@@ -17,6 +17,8 @@ import org.hyperic.sigar.SigarException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Singleton
 @Getter
@@ -188,10 +190,10 @@ public final class PacketHandler extends DefaultPacketHandler {
                     return;
                 }
 
+                System.out.println("&e" + gameServerInformation.getName() + "(" + gameServerInformation.getUniqueId().toString() + ") &r started successfully.");
+
                 // Add to Watch
                 this.getServerWatcher().getGameServers().add(gameServerInformation);
-
-                System.out.println("&e" + gameServerInformation.getName() + "&r started successfully.");
 
                 // Send packet back
                 requestGameServerStartPacket.sendBack();

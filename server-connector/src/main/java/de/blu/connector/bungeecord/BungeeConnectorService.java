@@ -265,4 +265,25 @@ public final class BungeeConnectorService extends ConnectorService {
         GameServerInformation fallbackServer = fallbackServers.get(0);
         return ProxyServer.getInstance().getServers().get(fallbackServer.getName());
     }
+
+    public boolean isFallbackServer(ServerInfo serverInfo) {
+        List<GameServerInformation> fallbackServers = new ArrayList<>();
+
+        for (String proxyFallbackPriority : this.getSelfGameServerInformation().getCloudType().getProxyFallbackPriorities()) {
+            CloudType cloudType = this.getCloudTypeRepository().getCloudTypeByName(proxyFallbackPriority);
+
+            if (proxyFallbackPriority == null) {
+                continue;
+            }
+
+            fallbackServers.addAll(this.getGameServerRepository().getGameServersByCloudType(cloudType));
+        }
+
+        if (fallbackServers.size() == 0) {
+            return false;
+        }
+
+        return fallbackServers.stream()
+                .anyMatch(gameServerInformation -> gameServerInformation.getName().equalsIgnoreCase(serverInfo.getName()));
+    }
 }

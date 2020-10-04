@@ -37,6 +37,11 @@
     "hosts": [
       "dev"
     ],
+    "meta": {
+      "isBungee": true,
+      "customNumber": 500,
+      "customString": "Hello"
+    },
     "fallbackPriorities": [
       "Lobby"
     ]
@@ -56,6 +61,11 @@
     "inheritances": [
       "BukkitBase"
     ],
+    "meta": {
+      "isBungee": false,
+      "customNumber": 500,
+      "customString": "Hello"
+    },
     "javaParameters": [],
     "serverParameters": [],
     "hosts": [

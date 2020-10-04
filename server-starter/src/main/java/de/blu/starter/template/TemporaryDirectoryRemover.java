@@ -51,6 +51,12 @@ public final class TemporaryDirectoryRemover {
                 if (this.getRedisConnection().contains("gameserver." + temporaryDirectory.getName())) {
                     continue;
                 }
+
+                try {
+                    FileUtils.deleteDirectory(temporaryDirectory);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

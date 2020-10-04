@@ -47,6 +47,15 @@ public final class CloudTypeJsonConverter {
             JSONArray javaParameters = (JSONArray) data.get("javaParameters");
             JSONArray serverParameters = (JSONArray) data.get("serverParameters");
 
+            if (data.containsKey("meta")) {
+                JSONObject meta = (JSONObject) data.get("meta");
+
+                // Meta
+                for (Object key : meta.keySet()) {
+                    cloudType.getMeta().put((String) key, meta.get(key));
+                }
+            }
+
             cloudType.setStaticService(staticService);
             cloudType.setMinOnlineServers((int) minOnlineServers);
             cloudType.setMaxOnlineServers((int) maxOnlineServers);

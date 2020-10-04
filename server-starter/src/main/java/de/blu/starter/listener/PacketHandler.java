@@ -50,7 +50,7 @@ public final class PacketHandler extends DefaultPacketHandler {
                 Sigar sigar = new Sigar();
 
                 try {
-                    int usedMemory = (int) (sigar.getMem().getUsed() / 1024 / 1024);
+                    int usedMemory = (int) (sigar.getMem().getActualUsed() / 1024 / 1024);
                     int maxMemory = (int) (sigar.getMem().getTotal() / 1024 / 1024);
                     double cpuLoadAverage = sigar.getLoadAverage()[0];
                     int amountOfCores = Runtime.getRuntime().availableProcessors();

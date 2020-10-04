@@ -156,7 +156,10 @@ public final class BungeeConnectorService extends ConnectorService {
 
                 System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
 
-                this.registerServer(gameServerInformation);
+                if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUKKIT)) {
+                    this.registerServer(gameServerInformation);
+                }
+
                 ServerStartedEvent serverStartedEvent = this.getInjector().getInstance(ServerStartedEvent.class);
                 serverStartedEvent.setGameServerInformation(gameServerInformation);
                 ProxyServer.getInstance().getPluginManager().callEvent(serverStartedEvent);

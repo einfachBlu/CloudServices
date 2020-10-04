@@ -151,7 +151,7 @@ public class ConnectorService {
             public void run() {
                 ConnectorService.this.getServerStartedSender().sendServerStarted(gameServerInformation);
             }
-        }, TimeUnit.SECONDS.toMillis(6));
+        }, TimeUnit.SECONDS.toMillis(5));
 
         this.selfGameServerInformation = gameServerInformation;
         this.getSelfGameServerInformationProvider().setGameServerInformation(gameServerInformation);

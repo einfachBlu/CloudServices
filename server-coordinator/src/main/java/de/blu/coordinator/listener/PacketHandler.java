@@ -64,6 +64,7 @@ public final class PacketHandler extends DefaultPacketHandler {
                 System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
             }
         }, "ServerStarted");
+
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             if (packet instanceof ServiceConnectedPacket) {
                 ServiceConnectedPacket serviceConnectedPacket = (ServiceConnectedPacket) packet;

@@ -12,6 +12,7 @@ import de.blu.common.storage.LogsStorage;
 import de.blu.connector.bukkit.api.event.ServerStartedEvent;
 import de.blu.connector.bukkit.api.event.ServerStoppedEvent;
 import de.blu.connector.bukkit.api.event.ServerUpdatedEvent;
+import de.blu.connector.bukkit.command.HubCommand;
 import de.blu.connector.bukkit.command.LogBukkitCommand;
 import de.blu.connector.bukkit.listener.JoinPermissionValidator;
 import de.blu.connector.bukkit.listener.OnlinePlayersUpdater;
@@ -54,6 +55,7 @@ public final class BukkitConnectorService extends ConnectorService {
     public void onEnable() {
         super.onEnable();
 
+        this.getPlugin().getCommand("hub").setExecutor(this.getInjector().getInstance(HubCommand.class));
         if (this.getLogsStorage().isEnabled()) {
             this.getPlugin().getCommand("logbukkit").setExecutor(this.getInjector().getInstance(LogBukkitCommand.class));
         }

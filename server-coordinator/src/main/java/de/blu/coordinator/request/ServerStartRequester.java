@@ -67,6 +67,8 @@ public final class ServerStartRequester {
             }
         }
 
+        System.out.println("Try to Start Server from " + cloudType.getName());
+
         // Get best ServerStarter Service
         this.getServerStarterReceiver().getBestServerStarter(cloudType, bestServerStarter -> {
             if (bestServerStarter == null) {

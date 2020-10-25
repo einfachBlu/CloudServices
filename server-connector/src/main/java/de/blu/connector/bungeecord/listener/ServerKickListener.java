@@ -28,12 +28,6 @@ public final class ServerKickListener implements Listener {
             kickedFrom = player.getServer().getInfo();
         }
 
-        /*
-        System.out.println("DEBUG ServerKickEvent for Player " + player.getName());
-        System.out.println("kickedFrom= " + (kickedFrom == null ? "null" : kickedFrom.getName()));
-        System.out.println("State= " + e.getState());
-         */
-
         if (kickedFrom != null && this.getBungeeConnectorService().isFallbackServer(kickedFrom) && e.getState().equals(ServerKickEvent.State.CONNECTING)) {
             e.setCancelled(true);
             e.setCancelServer(kickedFrom);

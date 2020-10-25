@@ -135,6 +135,10 @@ public final class CheckForServers {
         // Check which CloudType needs to be started and set by priority
         CloudType targetCloudType = null;
         for (CloudType cloudType : this.getCloudTypeRepository().getCloudTypes()) {
+            if (cloudType.getType().equals(CloudType.Type.TEMPLATE)) {
+                continue;
+            }
+
             int currentOnlineAmount = this.getGameServerRepository().getGameServersByCloudType(cloudType).size();
 
             if (cloudType.isStaticService() && currentOnlineAmount >= 1) {

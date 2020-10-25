@@ -13,7 +13,6 @@ import de.blu.common.storage.LogsStorage;
 import de.blu.connector.bungeecord.api.event.ServerStartedEvent;
 import de.blu.connector.bungeecord.api.event.ServerStoppedEvent;
 import de.blu.connector.bungeecord.api.event.ServerUpdatedEvent;
-import de.blu.connector.bungeecord.command.HubCommand;
 import de.blu.connector.bungeecord.command.LogBungeeCommand;
 import de.blu.connector.bungeecord.command.LogCommand;
 import de.blu.connector.bungeecord.listener.OnlinePlayersUpdater;
@@ -50,9 +49,6 @@ public final class BungeeConnectorService extends ConnectorService {
     private OnlinePlayersUpdater onlinePlayersUpdater;
 
     @Inject
-    private HubCommand hubCommand;
-
-    @Inject
     private LogCommand logCommand;
 
     @Inject
@@ -76,7 +72,6 @@ public final class BungeeConnectorService extends ConnectorService {
         ProxyServer.getInstance().getServers().remove("lobby");
 
         // Register Command
-        ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getHubCommand());
         if (this.getLogsStorage().isEnabled()) {
             ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getLogCommand());
             ProxyServer.getInstance().getPluginManager().registerCommand(this.getPlugin(), this.getLogBungeeCommand());
@@ -90,7 +85,14 @@ public final class BungeeConnectorService extends ConnectorService {
         ProxyServer.getInstance().setReconnectHandler(new ReconnectHandler() {
             @Override
             public ServerInfo getServer(ProxiedPlayer player) {
-                return BungeeConnectorService.this.getFallbackServer(player);
+                ServerInfo fallbackServer = BungeeConnectorService.this.getFallbackServer(player);
+                if (fallbackServer == null) {
+                    System.out.println("No Fallback Server available!");
+                    player.disconnect("No Fallback Server available!");
+                    return null;
+                }
+
+                return fallbackServer;
             }
 
             @Override

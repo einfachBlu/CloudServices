@@ -63,7 +63,7 @@ public final class PacketSender {
             message += entry.getKey() + "=" + entry.getValue();
         }
 
-        //System.out.println("Send Data: " + message);
+        //System.out.println("Send Data (Channel="+channel+"): " + message);
         return this.getRedisConnection().publish(channel, message);
     }
 }

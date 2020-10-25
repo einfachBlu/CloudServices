@@ -3,5 +3,9 @@ main: de.blu.connector.bukkit.BukkitConnectorPlugin
 version: 1.0.0
 author: Blu
 commands:
+  hub:
+    aliases:
+      - l
+      - lobby
   logbukkit:
     permission: command.logbukkit

@@ -12,7 +12,6 @@ import de.blu.coordinator.request.ResourceRequester;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ public final class ServerStarterReceiver {
                     System.out.println("averageCpu: " + requestResourcesPacket.getAverageCpuLoad());
                     System.out.println("usedMemory: " + requestResourcesPacket.getUsedMemory());
                     System.out.println("maxMemory: " + requestResourcesPacket.getMaxMemory());
-                    */
+                     */
                 }, serviceInformation);
             }
 
@@ -60,14 +59,13 @@ public final class ServerStarterReceiver {
             whileLoop:
             while (true) {
                 if (System.currentTimeMillis() - time >= timeout) {
-                    System.out.println("&cMissing a Callback of a ResourceRequest! timed out.");
+                    System.out.println("&cMissing a Callback of a ResourceRequest! timed out. CloudType: " + cloudType.getName());
                     bestServerStarterCallback.accept(null);
                     break;
                 }
 
                 for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
                     if (!serviceResources.containsKey(serviceInformation)) {
-                        // Continue While loop because we have not from every starter a callback
                         continue whileLoop;
                     }
                 }

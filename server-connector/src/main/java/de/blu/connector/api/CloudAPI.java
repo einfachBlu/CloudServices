@@ -3,6 +3,7 @@ package de.blu.connector.api;
 import com.google.inject.Inject;
 import de.blu.common.data.CloudType;
 import de.blu.common.data.GameServerInformation;
+import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.storage.GameServerStorage;
 import de.blu.connector.common.provider.SelfGameServerInformationProvider;
@@ -26,6 +27,9 @@ public abstract class CloudAPI {
 
     @Inject
     private SelfGameServerInformationProvider selfGameServerInformationProvider;
+
+    @Inject
+    private CloudTypeRepository cloudTypeRepository;
 
     @Inject
     private GameServerStorage gameServerStorage;

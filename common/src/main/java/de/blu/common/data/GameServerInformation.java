@@ -4,6 +4,8 @@ import de.blu.common.service.ServiceInformation;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +26,7 @@ public class GameServerInformation {
     private ServiceInformation serverStarterInformation;
     private State state = State.CREATED;
     private boolean manuallyStarted = false;
+    private Map<String, String> meta = new HashMap<>();
 
     public enum State {
         CREATED, STARTING, ONLINE, STOPPING, OFFLINE
@@ -37,6 +40,26 @@ public class GameServerInformation {
         this.cloudType = cloudType;
 
         this.setMaxPlayers(this.getCloudType().getMaxPlayers());
+    }
+
+    public boolean hasMeta(String key) {
+        return this.getMeta().containsKey(key);
+    }
+
+    public String getMetaString(String key) {
+        return this.getMeta().getOrDefault(key, null);
+    }
+
+    public int getMetaInt(String key) {
+        return Integer.parseInt(this.getMeta().getOrDefault(key, "-1"));
+    }
+
+    public boolean getMetaBoolean(String key) {
+        return Boolean.parseBoolean(this.getMeta().getOrDefault(key, "false"));
+    }
+
+    public long getMetaLong(String key) {
+        return Long.parseLong(this.getMeta().getOrDefault(key, "-1"));
     }
 
     @Override

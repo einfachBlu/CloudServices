@@ -31,4 +31,12 @@ public final class GameServerUpdateSender {
 
         this.getPacketSender().sendPacket(gameServerUpdatePacket, "GameServerUpdated");
     }
+
+    public void sendServerUpdated(GameServerInformation gameServerInformation) {
+        GameServerUpdatePacket gameServerUpdatePacket = this.getInjector().getInstance(GameServerUpdatePacket.class);
+        gameServerUpdatePacket.setGameServerName(gameServerInformation.getName());
+        gameServerUpdatePacket.setGameServerUniqueId(gameServerInformation.getUniqueId());
+
+        this.getPacketSender().sendPacket(gameServerUpdatePacket, "GameServerUpdated");
+    }
 }

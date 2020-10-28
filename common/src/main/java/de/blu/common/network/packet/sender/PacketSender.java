@@ -37,10 +37,10 @@ public final class PacketSender {
         return this.send(data, channel);
     }
 
-    public boolean sendPacket(Packet packet, Consumer<Void> doneCallback, String channel) {
+    public boolean sendPacket(Packet packet, Consumer<Void> callback, String channel) {
         Map<String, String> data = new HashMap<>();
 
-        this.getPacketCallbackRepository().addDoneCallback(packet.getUniqueId(), doneCallback);
+        this.getPacketCallbackRepository().addDoneCallback(packet.getUniqueId(), callback);
 
         data = this.getPacketWriter().writePacket(packet, data);
         return this.send(data, channel);

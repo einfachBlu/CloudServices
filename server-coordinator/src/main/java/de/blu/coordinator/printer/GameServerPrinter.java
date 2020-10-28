@@ -7,6 +7,7 @@ import de.blu.common.repository.GameServerRepository;
 import lombok.Getter;
 
 import java.util.Collections;
+import java.util.Map;
 
 @Singleton
 @Getter
@@ -37,6 +38,12 @@ public final class GameServerPrinter {
         System.out.println(this.getTabString(1) + "&ehost: &r" + gameServerInformation.getHost());
         System.out.println(this.getTabString(1) + "&eport: &r" + gameServerInformation.getPort());
         System.out.println(this.getTabString(1) + "&etemporaryPath: &r" + gameServerInformation.getTemporaryPath());
+        System.out.println(this.getTabString(1) + "&emeta (" + gameServerInformation.getMeta().size() + "):");
+
+        for (Map.Entry<String, String> entry : gameServerInformation.getMeta().entrySet()) {
+            System.out.println(this.getTabString(2) + "&e" + entry.getKey() + "&7: &b" + entry.getValue());
+        }
+
         System.out.println(this.getTabString(1) + "&eserverStarterInformation: &r" + gameServerInformation.getServerStarterInformation().getIdentifier().toString());
         System.out.println("}");
     }

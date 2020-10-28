@@ -17,6 +17,7 @@ import de.blu.connector.bukkit.command.LogBukkitCommand;
 import de.blu.connector.bukkit.listener.JoinPermissionValidator;
 import de.blu.connector.bukkit.listener.OnlinePlayersUpdater;
 import de.blu.connector.common.ConnectorService;
+import de.blu.connector.common.repository.ServerStartedCallbackRepository;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,6 +48,9 @@ public final class BukkitConnectorService extends ConnectorService {
 
     @Inject
     private LogsStorage logsStorage;
+
+    @Inject
+    private ServerStartedCallbackRepository serverStartedCallbackRepository;
 
     @Inject
     private Injector injector;
@@ -91,6 +95,8 @@ public final class BukkitConnectorService extends ConnectorService {
                 ServerStartedEvent serverStartedEvent = this.getInjector().getInstance(ServerStartedEvent.class);
                 serverStartedEvent.setGameServerInformation(gameServerInformation);
                 Bukkit.getServer().getPluginManager().callEvent(serverStartedEvent);
+
+                this.getServerStartedCallbackRepository().handleServerStarted(gameServerInformation);
             }
         }, "ServerStarted");
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {

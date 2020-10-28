@@ -3,6 +3,7 @@ package de.blu.connector.bukkit.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.data.GameServerInformation;
+import de.blu.common.repository.CloudTypeRepository;
 import de.blu.common.storage.LogsStorage;
 import de.blu.connector.common.provider.SelfGameServerInformationProvider;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public final class LogBukkitCommand implements CommandExecutor {
 
     @Inject
     private SelfGameServerInformationProvider selfGameServerInformationProvider;
+
+    @Inject
+    private CloudTypeRepository cloudTypeRepository;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

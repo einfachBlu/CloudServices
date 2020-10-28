@@ -18,6 +18,7 @@ import de.blu.connector.bungeecord.command.LogCommand;
 import de.blu.connector.bungeecord.listener.OnlinePlayersUpdater;
 import de.blu.connector.bungeecord.listener.ServerKickListener;
 import de.blu.connector.common.ConnectorService;
+import de.blu.connector.common.repository.ServerStartedCallbackRepository;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
@@ -62,6 +63,9 @@ public final class BungeeConnectorService extends ConnectorService {
 
     @Inject
     private LogsStorage logsStorage;
+
+    @Inject
+    private ServerStartedCallbackRepository serverStartedCallbackRepository;
 
     private Map<UUID, String> serverUniqueIdByName = new HashMap<>();
 
@@ -165,6 +169,8 @@ public final class BungeeConnectorService extends ConnectorService {
                 ServerStartedEvent serverStartedEvent = this.getInjector().getInstance(ServerStartedEvent.class);
                 serverStartedEvent.setGameServerInformation(gameServerInformation);
                 ProxyServer.getInstance().getPluginManager().callEvent(serverStartedEvent);
+
+                this.getServerStartedCallbackRepository().handleServerStarted(gameServerInformation);
             }
         }, "ServerStarted");
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {

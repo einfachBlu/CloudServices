@@ -6,13 +6,13 @@ import de.blu.common.data.GameServerInformation;
 import de.blu.common.repository.GameServerRepository;
 import de.blu.common.storage.GameServerStorage;
 import de.blu.connector.common.provider.SelfGameServerInformationProvider;
+import de.blu.connector.common.repository.ServerStartedCallbackRepository;
+import de.blu.connector.common.sender.GameServerStartRequester;
 import de.blu.connector.common.sender.GameServerUpdateSender;
 import de.blu.connector.common.sender.PlayerServerSender;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Getter
@@ -35,6 +35,12 @@ public abstract class CloudAPI {
 
     @Inject
     private PlayerServerSender playerServerSender;
+
+    @Inject
+    private GameServerStartRequester gameServerStartRequester;
+
+    @Inject
+    private ServerStartedCallbackRepository serverStartedCallbackRepository;
 
     public CloudAPI() {
         CloudAPI.instance = this;
@@ -64,16 +70,19 @@ public abstract class CloudAPI {
         GameServerInformation gameServerInformation = this.getGameServerInformation();
         gameServerInformation.setGameState(newGameState);
 
-        this.getGameServerStorage().saveGameServer(gameServerInformation);
-        this.getGameServerUpdateSender().sendServerUpdated();
+        this.saveGameServer(gameServerInformation);
     }
 
     public void setExtra(String extra) {
         GameServerInformation gameServerInformation = this.getGameServerInformation();
         gameServerInformation.setExtra(extra);
 
+        this.saveGameServer(gameServerInformation);
+    }
+
+    public void saveGameServer(GameServerInformation gameServerInformation) {
         this.getGameServerStorage().saveGameServer(gameServerInformation);
-        this.getGameServerUpdateSender().sendServerUpdated();
+        this.getGameServerUpdateSender().sendServerUpdated(gameServerInformation);
     }
 
     public void sendToServer(UUID player, String serverName) {
@@ -83,5 +92,25 @@ public abstract class CloudAPI {
 
     public void sendToServer(UUID player, String serverName, Consumer<Void> doneCallback) {
         this.getPlayerServerSender().sendToServer(player, serverName, doneCallback);
+    }
+
+    public void startServer(CloudType cloudType, Consumer<Boolean> startingCallback, Consumer<GameServerInformation> startedCallback) {
+        this.startServer(cloudType, startingCallback, startedCallback, new HashMap<>());
+    }
+
+    public void startServer(CloudType cloudType, Consumer<Boolean> startingCallback, Consumer<GameServerInformation> startedCallback, Map<String, String> meta) {
+        UUID callbackUniqueId = UUID.randomUUID();
+        meta.put("apiStartedId", callbackUniqueId.toString());
+
+        this.getGameServerStartRequester().request(cloudType, meta, requestGameServerStartPacket -> {
+            if (!requestGameServerStartPacket.isSuccess()) {
+                startingCallback.accept(false);
+                startedCallback.accept(null);
+                return;
+            }
+
+            startingCallback.accept(true);
+            this.getServerStartedCallbackRepository().getCallbacks().put(callbackUniqueId, startedCallback);
+        });
     }
 }

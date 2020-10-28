@@ -12,6 +12,7 @@ import lombok.Getter;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Singleton
@@ -46,6 +47,13 @@ public final class GameServerJsonConverter {
         data.put("serverStarterInformationIdentifier", gameServerInformation.getServerStarterInformation().getIdentifier().toString());
         data.put("serverStarterInformationName", gameServerInformation.getServerStarterInformation().getName());
 
+        JSONObject metaJson = new JSONObject();
+        for (Map.Entry<String, String> entry : gameServerInformation.getMeta().entrySet()) {
+            metaJson.put(entry.getKey(), entry.getValue());
+        }
+
+        data.put("meta", metaJson);
+
         return data.toJSONString();
     }
 
@@ -66,6 +74,15 @@ public final class GameServerJsonConverter {
         gameServerInformation.setGameState((String) data.get("gameState"));
         gameServerInformation.setExtra((String) data.get("extra"));
         gameServerInformation.setManuallyStarted(data.containsKey("manuallyStarted") ? (Boolean) data.get("manuallyStarted") : false);
+
+        if (data.containsKey("meta")) {
+            JSONObject meta = (JSONObject) data.get("meta");
+
+            // Meta
+            for (Object key : meta.keySet()) {
+                gameServerInformation.getMeta().put((String) key, (String) meta.get(key));
+            }
+        }
 
         UUID serviceIdentifier = UUID.fromString((String) data.get("serverStarterInformationIdentifier"));
         String serviceName = (String) data.get("serverStarterInformationName");

@@ -4,14 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.common.data.GameServerInformation;
 import de.blu.common.network.packet.handler.DefaultPacketHandler;
-import de.blu.common.network.packet.packets.ServerStartedPacket;
-import de.blu.common.network.packet.packets.ServerStoppedPacket;
-import de.blu.common.network.packet.packets.ServiceConnectedPacket;
-import de.blu.common.network.packet.packets.ServiceDisconnectedPacket;
+import de.blu.common.network.packet.packets.*;
 import de.blu.common.service.ServiceInformation;
 import de.blu.common.service.Services;
 import de.blu.coordinator.repository.ServerStarterHostRepository;
 import de.blu.coordinator.request.ResourceRequester;
+import de.blu.coordinator.request.ServerStartRequester;
 import lombok.Getter;
 
 import java.util.UUID;
@@ -25,6 +23,9 @@ public final class PacketHandler extends DefaultPacketHandler {
 
     @Inject
     private ResourceRequester resourceRequester;
+
+    @Inject
+    private ServerStartRequester serverStartRequester;
 
     @Override
     public void registerAll() {
@@ -64,6 +65,18 @@ public final class PacketHandler extends DefaultPacketHandler {
                 System.out.println("&e" + gameServerInformation.getName() + "&r is now &aonline&7.");
             }
         }, "ServerStarted");
+
+        this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
+            if (packet instanceof RequestGameServerStartPacket) {
+                RequestGameServerStartPacket requestGameServerStartPacket = (RequestGameServerStartPacket) packet;
+
+                this.getServerStartRequester().requestGameServerStart(requestGameServerStartPacket.getCloudType(), true,
+                        requestGameServerStartPacket.getMeta(), gameServerInformation -> {
+                            requestGameServerStartPacket.setSuccess(gameServerInformation != null);
+                            requestGameServerStartPacket.sendBack();
+                        });
+            }
+        }, "RequestCoordinatorStartGameServer");
 
         this.getPacketListenerRepository().registerListener((packet, hadCallback) -> {
             if (packet instanceof ServiceConnectedPacket) {

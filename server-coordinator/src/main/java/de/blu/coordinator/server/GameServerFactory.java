@@ -12,6 +12,8 @@ import de.blu.common.service.ServiceInformation;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import java.util.Map;
+
 @Singleton
 @Getter(AccessLevel.PRIVATE)
 public final class GameServerFactory {
@@ -28,7 +30,7 @@ public final class GameServerFactory {
     @Inject
     private Injector injector;
 
-    public GameServerInformation create(CloudType cloudType, boolean manually, ServiceInformation serviceInformation) {
+    public GameServerInformation create(CloudType cloudType, boolean manually, Map<String, String> meta, ServiceInformation serviceInformation) {
         GameServerInformation gameServerInformation = this.getInjector().getInstance(GameServerInformation.class);
 
         if (cloudType.isStaticService()) {
@@ -69,6 +71,7 @@ public final class GameServerFactory {
         gameServerInformation.setState(GameServerInformation.State.CREATED);
         gameServerInformation.setServerStarterInformation(serviceInformation);
         gameServerInformation.setManuallyStarted(manually);
+        gameServerInformation.setMeta(meta);
 
         this.getGameServerRepository().getGameServers().add(gameServerInformation);
 

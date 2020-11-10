@@ -43,43 +43,45 @@ public final class ServerWatcher {
     public void run() {
         synchronized (this.getGameServers()) {
             Collection<GameServerInformation> toRemove = new ArrayList<>();
-            for (GameServerInformation gameServerInformation : this.getGameServers()) {
-                if (this.isScreenActive(gameServerInformation)) {
-                    /* Not our business. if something failed in the screen, the user should look into it
-                    on his own
+            synchronized (this.getGameServers()) {
+                ArrayList<GameServerInformation> gameServers = new ArrayList<>(this.getGameServers());
+                for (GameServerInformation gameServerInformation : gameServers) {
+                    if (this.isScreenActive(gameServerInformation)) {
+                        /* Not our business. if something failed in the screen, the user should look into it
+                        on his own
 
-                    // Check also if console stuck
-                    String fullServerName = gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString();
-                    File logFile = new File(new File(this.getFileRootConfig().getRootFileDirectory()), "Logs/" + fullServerName + ".log");
+                        // Check also if console stuck
+                        String fullServerName = gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString();
+                        File logFile = new File(new File(this.getFileRootConfig().getRootFileDirectory()), "Logs/" + fullServerName + ".log");
 
-                    // Check if log is stuck
-                    long time = System.currentTimeMillis() - logFile.lastModified();
-                    long timeout = TimeUnit.SECONDS.toMillis(30);
-                    if (time >= timeout) {
-                        toRemove.add(gameServerInformation);
-                        this.getServerStoppedSender().sendServerStopped(gameServerInformation);
-                        this.killScreen(gameServerInformation);
+                        // Check if log is stuck
+                        long time = System.currentTimeMillis() - logFile.lastModified();
+                        long timeout = TimeUnit.SECONDS.toMillis(30);
+                        if (time >= timeout) {
+                            toRemove.add(gameServerInformation);
+                            this.getServerStoppedSender().sendServerStopped(gameServerInformation);
+                            this.killScreen(gameServerInformation);
+                        }
+                        */
+                        continue;
                     }
-                    */
 
-                    continue;
+                    toRemove.add(gameServerInformation);
+
+                    File logFile = null;
+                    if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUNGEECORD)) {
+                        logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/proxy.log.0");
+                    } else if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUKKIT)) {
+                        logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/latest.log");
+                    }
+
+                    if (logFile != null && logFile.exists()) {
+                        this.getLogsStorage().postUrl(gameServerInformation.getUniqueId(), logFile, -1);
+                    }
+
+                    System.out.println("ServerWatcher detected stopped screen for Server " + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString());
+                    this.getServerStoppedSender().sendServerStopped(gameServerInformation);
                 }
-
-                toRemove.add(gameServerInformation);
-
-                File logFile = null;
-                if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUNGEECORD)) {
-                    logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/proxy.log.0");
-                } else if (gameServerInformation.getCloudType().getType().equals(CloudType.Type.BUKKIT)) {
-                    logFile = new File(gameServerInformation.getTemporaryPath() + "/logs/latest.log");
-                }
-
-                if (logFile != null && logFile.exists()) {
-                    this.getLogsStorage().postUrl(gameServerInformation.getUniqueId(), logFile, -1);
-                }
-
-                System.out.println("ServerWatcher detected stopped screen for Server " + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString());
-                this.getServerStoppedSender().sendServerStopped(gameServerInformation);
             }
 
             this.getGameServers().removeAll(toRemove);

@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public final class CloudTypeRepository {
 
-    private static final int REDIS_CACHE_TIME = (int) TimeUnit.DAYS.toSeconds(90);
-
     @Setter
     private Collection<CloudType> cloudTypes = new ArrayList<>();
 

@@ -3,4 +3,5 @@ include 'server-starter'
 include 'common'
 include 'server-coordinator'
 include 'server-connector'
+include 'web-panel'
 

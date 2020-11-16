@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.2.0' 
+    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+}
+
+group 'de.blu'
+version '1.0.0-SNAPSHOT'
+
+dependencies {
+    implementation project(':common')
+
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+    implementation 'com.google.inject:guice:4.0'
+    implementation 'jline:jline:2.11'
+    implementation 'org.apache.logging.log4j:log4j-core:2.0.2'
+    implementation 'io.lettuce:lettuce-core:5.2.2.RELEASE'
+    compileOnly 'org.hyperic:sigar:1.6.4'
+    compileOnly 'org.yaml:snakeyaml:1.17'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'commons-io:commons-io:2.5'
+}
+
+shadowJar.doLast {
+    File jarFile = file("${project.buildDir}/libs/${project.name}-${project.version}-all.jar")
+
+    if (!jarFile.exists()) {
+        jarFile = file("${project.buildDir}/libs/${project.name}-${project.version}.jar")
+        if (!jarFile.exists()) {
+            //println "output jarFile doesnt exist, maybe something failed with the build?"
+            return
+        }
+    }
+
+    copy {
+        from jarFile
+        into "${project.rootDir}/output/"
+
+        rename {
+            "web-panel.jar"
+        }
+    }
+}

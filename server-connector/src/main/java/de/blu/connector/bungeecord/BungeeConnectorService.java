@@ -15,6 +15,7 @@ import de.blu.connector.bungeecord.api.event.ServerStoppedEvent;
 import de.blu.connector.bungeecord.api.event.ServerUpdatedEvent;
 import de.blu.connector.bungeecord.command.LogBungeeCommand;
 import de.blu.connector.bungeecord.command.LogCommand;
+import de.blu.connector.bungeecord.config.MainConfig;
 import de.blu.connector.bungeecord.listener.OnlinePlayersUpdater;
 import de.blu.connector.bungeecord.listener.ServerKickListener;
 import de.blu.connector.common.ConnectorService;
@@ -65,6 +66,9 @@ public final class BungeeConnectorService extends ConnectorService {
     private LogsStorage logsStorage;
 
     @Inject
+    private MainConfig mainConfig;
+
+    @Inject
     private ServerStartedCallbackRepository serverStartedCallbackRepository;
 
     private Map<UUID, String> serverUniqueIdByName = new HashMap<>();
@@ -73,7 +77,7 @@ public final class BungeeConnectorService extends ConnectorService {
     public void onEnable() {
         super.onEnable();
 
-        ProxyServer.getInstance().getServers().remove("lobby");
+        //ProxyServer.getInstance().getServers().remove("lobby");
 
         // Register Command
         if (this.getLogsStorage().isEnabled()) {
@@ -85,32 +89,37 @@ public final class BungeeConnectorService extends ConnectorService {
         ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getServerKickListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.getPlugin(), this.getOnlinePlayersUpdater());
 
-        // Add ReconnectHandler
-        ProxyServer.getInstance().setReconnectHandler(new ReconnectHandler() {
-            @Override
-            public ServerInfo getServer(ProxiedPlayer player) {
-                ServerInfo fallbackServer = BungeeConnectorService.this.getFallbackServer(player);
-                if (fallbackServer == null) {
-                    System.out.println("No Fallback Server available!");
-                    player.disconnect("No Fallback Server available!");
-                    return null;
+        // Init Config
+        this.getMainConfig().load();
+
+        if (this.getMainConfig().isFallbackHandling()) {
+            // Add ReconnectHandler
+            ProxyServer.getInstance().setReconnectHandler(new ReconnectHandler() {
+                @Override
+                public ServerInfo getServer(ProxiedPlayer player) {
+                    ServerInfo fallbackServer = BungeeConnectorService.this.getFallbackServer(player);
+                    if (fallbackServer == null) {
+                        System.out.println("No Fallback Server available!");
+                        player.disconnect("No Fallback Server available!");
+                        return null;
+                    }
+
+                    return fallbackServer;
                 }
 
-                return fallbackServer;
-            }
+                @Override
+                public void setServer(ProxiedPlayer player) {
+                }
 
-            @Override
-            public void setServer(ProxiedPlayer player) {
-            }
+                @Override
+                public void save() {
+                }
 
-            @Override
-            public void save() {
-            }
-
-            @Override
-            public void close() {
-            }
-        });
+                @Override
+                public void close() {
+                }
+            });
+        }
 
         // Create ServerInfo Objects
         for (GameServerInformation gameServer : this.getGameServerRepository().getGameServers()) {

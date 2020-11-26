@@ -3,6 +3,7 @@ package de.blu.connector.bungeecord.listener;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.blu.connector.bungeecord.BungeeConnectorService;
+import de.blu.connector.bungeecord.config.MainConfig;
 import lombok.Getter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -19,8 +20,15 @@ public final class ServerKickListener implements Listener {
     @Inject
     private BungeeConnectorService bungeeConnectorService;
 
+    @Inject
+    private MainConfig mainConfig;
+
     @EventHandler
     public void onKick(ServerKickEvent e) {
+        if (!this.getMainConfig().isFallbackHandling()) {
+            return;
+        }
+
         ProxiedPlayer player = e.getPlayer();
 
         ServerInfo kickedFrom = null;

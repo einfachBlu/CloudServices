@@ -24,6 +24,7 @@ public final class MainConfig {
     public void load() {
         File configFile = this.getConfigFile();
         this.saveDefaultConfig();
+        
         try {
             Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
             this.fallbackHandling = config.getBoolean("fallbackHandling");

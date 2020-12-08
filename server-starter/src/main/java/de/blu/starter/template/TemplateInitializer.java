@@ -160,12 +160,14 @@ public final class TemplateInitializer {
                         continue;
                     }
 
+                    /*
                     if (targetFile.exists()) {
                         if (targetFile.lastModified() > file.lastModified()) {
                             // Dont overwrite files if file in static directory is newer
                             continue;
                         }
                     }
+                    */
 
                     FileUtils.copyFile(file, targetFile);
                 } catch (IOException e) {

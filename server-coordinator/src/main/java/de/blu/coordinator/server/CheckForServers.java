@@ -13,8 +13,9 @@ import de.blu.coordinator.request.ResourceRequester;
 import de.blu.coordinator.request.ServerStartRequester;
 import de.blu.coordinator.request.ServerStopRequester;
 import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,7 +26,10 @@ import java.util.stream.Collectors;
 @Getter
 public final class CheckForServers {
 
-    private static final int CHECK_INTERVAL = 300;
+    private static final int CHECK_INTERVAL = 1000;
+
+    @Setter
+    private boolean creatingServer = false;
 
     @Inject
     private ExecutorService executorService;
@@ -126,7 +130,12 @@ public final class CheckForServers {
                 "&r to ServerStarter &e" + targetGameServerInformation.getServerStarterInformation().getIdentifier().toString());
     }
 
-    private void startServersIfNeeded() {
+    private synchronized void startServersIfNeeded() {
+        if (this.creatingServer) {
+            // Wait until the last server Creation was done
+            return;
+        }
+
         // Check if at least one ServerStarter is online
         if (this.getServiceRepository().getServicesBy(Services.SERVER_STARTER).size() == 0) {
             return;
@@ -204,6 +213,9 @@ public final class CheckForServers {
 
         // Request ServerStart
         CloudType cloudType = targetCloudType;
-        this.getServerStartRequester().requestGameServerStart(cloudType, false);
+        this.creatingServer = true;
+        this.getServerStartRequester().requestGameServerStart(cloudType, false, new HashMap<>(), gameServerInformation -> {
+            this.creatingServer = false;
+        });
     }
 }

@@ -82,6 +82,7 @@ public final class ServerStartRequester {
             if (cloudType.isStaticService() && currentOnlineAmount >= 1) {
                 // Allow only 1 server at once running for static Service
                 System.out.println("&cCloudType is static and is already started");
+                callback.accept(null);
                 return;
             }
         }
@@ -91,11 +92,13 @@ public final class ServerStartRequester {
         // Get best ServerStarter Service
         this.getServerStarterReceiver().getBestServerStarter(cloudType, bestServerStarter -> {
             if (bestServerStarter == null) {
+                callback.accept(null);
                 return;
             }
 
             GameServerInformation gameServerInformation = this.getGameServerFactory().create(cloudType, manually, meta, bestServerStarter);
             if (gameServerInformation == null) {
+                callback.accept(null);
                 return;
             }
 

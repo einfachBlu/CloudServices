@@ -107,8 +107,7 @@ public final class PacketHandler extends DefaultPacketHandler {
                 gameServerInformation.setTemporaryPath(tempDirectory.getAbsolutePath());
 
                 // Check if port is in use
-                int port = gameServerInformation.getCloudType().getPortStart();
-
+                int port = gameServerInformation.getPort();
                 while (port <= gameServerInformation.getCloudType().getPortEnd()) {
                     if (!this.getAddressResolver().isPortInUse(port)) {
                         break;
@@ -188,7 +187,7 @@ public final class PacketHandler extends DefaultPacketHandler {
                     return;
                 }
 
-                System.out.println("&e" + gameServerInformation.getName() + "(" + gameServerInformation.getUniqueId().toString() + ") &r started successfully.");
+                System.out.println("&e" + gameServerInformation.getName() + "(" + gameServerInformation.getUniqueId().toString() + ") &r started successfully on port " + gameServerInformation.getPort());
 
                 // Add to Watch
                 this.getServerWatcher().getGameServers().add(gameServerInformation);

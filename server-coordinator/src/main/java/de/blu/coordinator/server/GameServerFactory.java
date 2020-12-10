@@ -37,7 +37,7 @@ public final class GameServerFactory {
             gameServerInformation.setName(cloudType.getName());
         } else {
             int id = 0;
-            for (int i = 1; i < 2000; i++) {
+            for (int i = 1; i < 5000; i++) {
                 int finalI = i;
                 if (this.getGameServerRepository().getGameServersByCloudType(cloudType).stream()
                         .noneMatch(gameServerInformation1 -> gameServerInformation1.getId() == finalI)) {
@@ -50,10 +50,14 @@ public final class GameServerFactory {
             gameServerInformation.setName(cloudType.getName() + "-" + gameServerInformation.getId());
         }
 
+        gameServerInformation.setServerStarterInformation(serviceInformation);
+        gameServerInformation.setCloudType(cloudType);
+
         int port = 0;
         for (int currentPort = cloudType.getPortStart(); currentPort <= cloudType.getPortEnd(); currentPort++) {
             int finalCurrentPort = currentPort;
-            if (this.getGameServerRepository().getGameServersByCloudType(cloudType).stream()
+            if (this.getGameServerRepository().getGameServers().stream()
+                    .filter(gameServerInformation1 -> gameServerInformation1.getServerStarterInformation().getIdentifier().equals(serviceInformation.getIdentifier()))
                     .noneMatch(gameServerInformation1 -> gameServerInformation1.getPort() == finalCurrentPort)) {
                 port = currentPort;
                 break;
@@ -67,14 +71,12 @@ public final class GameServerFactory {
         }
 
         gameServerInformation.setPort(port);
-        gameServerInformation.setCloudType(cloudType);
         gameServerInformation.setState(GameServerInformation.State.CREATED);
-        gameServerInformation.setServerStarterInformation(serviceInformation);
         gameServerInformation.setManuallyStarted(manually);
         gameServerInformation.setMeta(meta);
 
         this.getGameServerRepository().getGameServers().add(gameServerInformation);
-
+        System.out.println("Created GameServer " + gameServerInformation.getName() + " on Port " + port);
         String json = this.getGameServerJsonConverter().toJson(gameServerInformation);
         this.getRedisConnection().set("gameserver." + gameServerInformation.getName() + "_" + gameServerInformation.getUniqueId().toString(), json);
 

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Getter
 public final class CheckForServers {
 
-    private static final int CHECK_INTERVAL = 3000;
+    private static final int CHECK_INTERVAL = 300;
 
     @Inject
     private ExecutorService executorService;

@@ -32,6 +32,8 @@ public final class GameServerStarter {
         }
 
         try {
+            System.out.println("Starting " + gameServerInformation.getName() + " on Port " + gameServerInformation.getPort());
+
             Process process = new ProcessBuilder(
                     "/bin/sh", "-c",
                     "screen -dmS " + fullServerName +

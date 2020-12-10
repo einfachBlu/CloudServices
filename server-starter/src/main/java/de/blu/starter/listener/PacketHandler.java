@@ -17,8 +17,6 @@ import org.hyperic.sigar.SigarException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Singleton
 @Getter
@@ -112,7 +110,7 @@ public final class PacketHandler extends DefaultPacketHandler {
                 int port = gameServerInformation.getCloudType().getPortStart();
 
                 while (port <= gameServerInformation.getCloudType().getPortEnd()) {
-                    if (!this.getAddressResolver().isPortInUse(gameServerInformation.getHost(), port)) {
+                    if (!this.getAddressResolver().isPortInUse(port)) {
                         break;
                     }
 

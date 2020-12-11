@@ -17,20 +17,41 @@ public final class GameServerRepository {
     private Collection<GameServerInformation> gameServers = new ArrayList<>();
 
     public GameServerInformation getGameServerByName(String name) {
-        return this.getGameServers().stream()
+        return new ArrayList<>(this.getGameServers()).stream()
                 .filter(gameServerInformation -> gameServerInformation.getName().equalsIgnoreCase(name))
                 .findFirst().orElse(null);
     }
 
     public GameServerInformation getGameServerByUniqueId(UUID uniqueId) {
-        return this.getGameServers().stream()
+        return new ArrayList<>(this.getGameServers()).stream()
                 .filter(gameServerInformation -> gameServerInformation.getUniqueId().equals(uniqueId))
                 .findFirst().orElse(null);
     }
 
     public Collection<GameServerInformation> getGameServersByCloudType(CloudType cloudType) {
-        return this.getGameServers().stream()
-                .filter(gameServerInformation -> gameServerInformation.getCloudType().equals(cloudType))
+        return new ArrayList<>(this.getGameServers()).stream()
+                .filter(gameServerInformation -> {
+                    try {
+                        boolean equals = gameServerInformation.getCloudType().equals(cloudType);
+                        return equals;
+                    } catch (NullPointerException e) {
+                        System.out.println("Where is the NPE? Server in iteration: " + gameServerInformation);
+                        if (gameServerInformation == null) {
+                            System.out.println("gameserverInformation is null");
+                            return false;
+                        }
+                        if (gameServerInformation.getCloudType() == null) {
+                            System.out.println("gameServerInformation.getCloudType() is null");
+                            return false;
+                        }
+                        if (cloudType == null) {
+                            System.out.println("cloudType is null");
+                            return false;
+                        }
+                    }
+
+                    return false;
+                })
                 .collect(Collectors.toList());
     }
 }

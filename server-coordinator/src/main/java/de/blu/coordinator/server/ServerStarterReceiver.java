@@ -36,12 +36,13 @@ public final class ServerStarterReceiver {
 
     public void getBestServerStarter(CloudType cloudType, Consumer<ServiceInformation> bestServerStarterCallback) {
         this.getExecutorService().execute(() -> {
-            Collection<ServiceInformation> serverStarterServiceInformation = this.getServiceRepository().getServicesBy(Services.SERVER_STARTER);
-            Map<ServiceInformation, RequestResourcesPacket> serviceResources = new HashMap<>();
+            try {
+                Collection<ServiceInformation> serverStarterServiceInformation = this.getServiceRepository().getServicesBy(Services.SERVER_STARTER);
+                Map<ServiceInformation, RequestResourcesPacket> serviceResources = new HashMap<>();
 
-            for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
-                this.getResourceRequester().requestResources(requestResourcesPacket -> {
-                    serviceResources.put(serviceInformation, requestResourcesPacket);
+                for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
+                    this.getResourceRequester().requestResources(requestResourcesPacket -> {
+                        serviceResources.put(serviceInformation, requestResourcesPacket);
 
                     /*
                     System.out.println("&bReceived Resources of ServerStarter " + serviceInformation.getIdentifier().toString() + ":");
@@ -50,70 +51,74 @@ public final class ServerStarterReceiver {
                     System.out.println("usedMemory: " + requestResourcesPacket.getUsedMemory());
                     System.out.println("maxMemory: " + requestResourcesPacket.getMaxMemory());
                      */
-                }, serviceInformation);
-            }
-
-            long time = System.currentTimeMillis();
-            long timeout = 5000;
-            boolean lastStarterHasNoMemory = false;
-            whileLoop:
-            while (true) {
-                if (System.currentTimeMillis() - time >= timeout) {
-                    System.out.println("&cMissing a Callback of a ResourceRequest! timed out. CloudType: " + cloudType.getName());
-                    bestServerStarterCallback.accept(null);
-                    break;
+                    }, serviceInformation);
                 }
 
-                for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
-                    if (!serviceResources.containsKey(serviceInformation)) {
-                        continue whileLoop;
-                    }
-                }
-
-                // Check for the best ServerStarter based on their resources
-                ServiceInformation bestServerStarter = null;
-                RequestResourcesPacket bestServerStarterResources = null;
-                for (Map.Entry<ServiceInformation, RequestResourcesPacket> entry : serviceResources.entrySet()) {
-                    ServiceInformation serviceInformation = entry.getKey();
-                    RequestResourcesPacket requestResourcesPacket = entry.getValue();
-
-                    if (cloudType.getHosts().size() > 0 && !cloudType.getHosts().contains(requestResourcesPacket.getHostName())) {
-                        // Cant be started on this ServerStarter because cloudtype has specified other hostNames
-                        continue;
+                long time = System.currentTimeMillis();
+                long timeout = 5000;
+                boolean lastStarterHasNoMemory = false;
+                whileLoop:
+                while (true) {
+                    if (System.currentTimeMillis() - time >= timeout) {
+                        System.out.println("&cMissing a Callback of a ResourceRequest! timed out. CloudType: " + cloudType.getName());
+                        bestServerStarterCallback.accept(null);
+                        break;
                     }
 
-                    int availableMemory = requestResourcesPacket.getMaxMemory() - requestResourcesPacket.getUsedMemory();
-                    availableMemory -= 512; // To prevent going completely out of memory
-
-                    if (cloudType.getMemory() > availableMemory) {
-                        // Has not enough memory
-                        lastStarterHasNoMemory = true;
-                        continue;
+                    for (ServiceInformation serviceInformation : serverStarterServiceInformation) {
+                        if (!serviceResources.containsKey(serviceInformation)) {
+                            continue whileLoop;
+                        }
                     }
 
-                    lastStarterHasNoMemory = false;
+                    // Check for the best ServerStarter based on their resources
+                    ServiceInformation bestServerStarter = null;
+                    RequestResourcesPacket bestServerStarterResources = null;
+                    for (Map.Entry<ServiceInformation, RequestResourcesPacket> entry : serviceResources.entrySet()) {
+                        ServiceInformation serviceInformation = entry.getKey();
+                        RequestResourcesPacket requestResourcesPacket = entry.getValue();
 
-                    if (bestServerStarter == null) {
+                        if (cloudType.getHosts().size() > 0 && !cloudType.getHosts().contains(requestResourcesPacket.getHostName())) {
+                            // Cant be started on this ServerStarter because cloudtype has specified other hostNames
+                            continue;
+                        }
+
+                        int availableMemory = requestResourcesPacket.getMaxMemory() - requestResourcesPacket.getUsedMemory();
+                        availableMemory -= 512; // To prevent going completely out of memory
+
+                        if (cloudType.getMemory() > availableMemory) {
+                            // Has not enough memory
+                            lastStarterHasNoMemory = true;
+                            continue;
+                        }
+
+                        lastStarterHasNoMemory = false;
+
+                        if (bestServerStarter == null) {
+                            bestServerStarter = serviceInformation;
+                            bestServerStarterResources = requestResourcesPacket;
+                            continue;
+                        }
+
+                        if (requestResourcesPacket.getAverageCpuLoad() >= bestServerStarterResources.getAverageCpuLoad()) {
+                            // current best has lower average cpu load, so we prefer that
+                            continue;
+                        }
+
                         bestServerStarter = serviceInformation;
                         bestServerStarterResources = requestResourcesPacket;
-                        continue;
                     }
 
-                    if (requestResourcesPacket.getAverageCpuLoad() >= bestServerStarterResources.getAverageCpuLoad()) {
-                        // current best has lower average cpu load, so we prefer that
-                        continue;
+                    if (bestServerStarter == null && lastStarterHasNoMemory) {
+                        System.out.println("&eAll ServerStarters are out of memory for " + cloudType.getName() + "!");
                     }
 
-                    bestServerStarter = serviceInformation;
-                    bestServerStarterResources = requestResourcesPacket;
+                    bestServerStarterCallback.accept(bestServerStarter);
+                    break;
                 }
-
-                if (bestServerStarter == null && lastStarterHasNoMemory) {
-                    System.out.println("&eAll ServerStarters are out of memory for " + cloudType.getName() + "!");
-                }
-
-                bestServerStarterCallback.accept(bestServerStarter);
-                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+                bestServerStarterCallback.accept(null);
             }
         });
     }

@@ -77,35 +77,40 @@ public final class ServerStartRequester {
     }
 
     public void requestGameServerStart(CloudType cloudType, boolean manually, Map<String, String> meta, Consumer<GameServerInformation> callback) {
-        if (manually) {
-            int currentOnlineAmount = this.getGameServerRepository().getGameServersByCloudType(cloudType).size();
-            if (cloudType.isStaticService() && currentOnlineAmount >= 1) {
-                // Allow only 1 server at once running for static Service
-                System.out.println("&cCloudType is static and is already started");
-                callback.accept(null);
-                return;
+        try {
+            if (manually) {
+                int currentOnlineAmount = this.getGameServerRepository().getGameServersByCloudType(cloudType).size();
+                if (cloudType.isStaticService() && currentOnlineAmount >= 1) {
+                    // Allow only 1 server at once running for static Service
+                    System.out.println("&cCloudType is static and is already started");
+                    callback.accept(null);
+                    return;
+                }
             }
+
+            System.out.println("Try to Start Server from " + cloudType.getName());
+
+            // Get best ServerStarter Service
+            this.getServerStarterReceiver().getBestServerStarter(cloudType, bestServerStarter -> {
+                if (bestServerStarter == null) {
+                    callback.accept(null);
+                    return;
+                }
+
+                GameServerInformation gameServerInformation = this.getGameServerFactory().create(cloudType, manually, meta, bestServerStarter);
+                if (gameServerInformation == null) {
+                    callback.accept(null);
+                    return;
+                }
+
+                System.out.println("ServerStart Request for &e" + gameServerInformation.getName() +
+                        "&r to ServerStarter &e" + bestServerStarter.getIdentifier().toString());
+
+                this.requestGameServerStart(gameServerInformation, callback);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.accept(null);
         }
-
-        System.out.println("Try to Start Server from " + cloudType.getName());
-
-        // Get best ServerStarter Service
-        this.getServerStarterReceiver().getBestServerStarter(cloudType, bestServerStarter -> {
-            if (bestServerStarter == null) {
-                callback.accept(null);
-                return;
-            }
-
-            GameServerInformation gameServerInformation = this.getGameServerFactory().create(cloudType, manually, meta, bestServerStarter);
-            if (gameServerInformation == null) {
-                callback.accept(null);
-                return;
-            }
-
-            System.out.println("ServerStart Request for &e" + gameServerInformation.getName() +
-                    "&r to ServerStarter &e" + bestServerStarter.getIdentifier().toString());
-
-            this.requestGameServerStart(gameServerInformation, callback);
-        });
     }
 }

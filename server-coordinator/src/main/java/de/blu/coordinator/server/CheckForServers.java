@@ -27,9 +27,13 @@ import java.util.stream.Collectors;
 public final class CheckForServers {
 
     private static final int CHECK_INTERVAL = 1000;
+    private static final int CREATING_SERVER_TIMEOUT = 15 * 1000;
 
     @Setter
     private boolean creatingServer = false;
+
+    @Setter
+    private long lastCreatingServer = 0;
 
     @Inject
     private ExecutorService executorService;
@@ -65,8 +69,12 @@ public final class CheckForServers {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                CheckForServers.this.startServersIfNeeded();
-                CheckForServers.this.stopServersIfPossible();
+                try {
+                    CheckForServers.this.startServersIfNeeded();
+                    CheckForServers.this.stopServersIfPossible();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }, 0, CHECK_INTERVAL);
     }
@@ -133,7 +141,15 @@ public final class CheckForServers {
     private synchronized void startServersIfNeeded() {
         if (this.creatingServer) {
             // Wait until the last server Creation was done
-            return;
+
+            // Check for Timeout
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - this.lastCreatingServer >= CREATING_SERVER_TIMEOUT) {
+                System.out.println("Callback missing of creation of Server!");
+                this.creatingServer = false;
+            } else {
+                return;
+            }
         }
 
         // Check if at least one ServerStarter is online
@@ -214,6 +230,7 @@ public final class CheckForServers {
         // Request ServerStart
         CloudType cloudType = targetCloudType;
         this.creatingServer = true;
+        this.lastCreatingServer = System.currentTimeMillis();
         this.getServerStartRequester().requestGameServerStart(cloudType, false, new HashMap<>(), gameServerInformation -> {
             this.creatingServer = false;
         });

@@ -37,7 +37,7 @@ public final class GameServerStarter {
             Process process = new ProcessBuilder(
                     "/bin/sh", "-c",
                     "screen -dmS " + fullServerName +
-                            " -L -Logfile " + logFile.getAbsolutePath() +
+                            /*" -L -Logfile " + logFile.getAbsolutePath() + */ // Disabled Logging into a specific directory
                             " /bin/sh -c '" +
                             "cd " + new File(gameServerInformation.getTemporaryPath()).getAbsolutePath() + " &&" +
                             " java -server" +

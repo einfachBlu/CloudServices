@@ -37,6 +37,11 @@ public class GameServerInformation {
     }
 
     public void setCloudType(CloudType cloudType) {
+        if (cloudType == null) {
+            new NullPointerException("GameServerInformation.setCloudType(null) wtf how").printStackTrace();
+            return;
+        }
+
         this.cloudType = cloudType;
 
         this.setMaxPlayers(this.getCloudType().getMaxPlayers());

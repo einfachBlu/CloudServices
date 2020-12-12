@@ -14,7 +14,21 @@ import java.util.stream.Collectors;
 @Getter
 public final class GameServerRepository {
 
-    private Collection<GameServerInformation> gameServers = new ArrayList<>();
+    private Collection<GameServerInformation> gameServers = new ArrayList<GameServerInformation>() {
+        @Override
+        public boolean add(GameServerInformation o) {
+            if (o == null) {
+                new NullPointerException("Null GameServerInformation was added to the GameServerRepository").printStackTrace();
+                return false;
+            }
+
+            if(this.stream().anyMatch(gameServerInformation -> gameServerInformation.getUniqueId().equals(o.getUniqueId()))){
+                return false;
+            }
+
+            return super.add(o);
+        }
+    };
 
     public GameServerInformation getGameServerByName(String name) {
         return new ArrayList<>(this.getGameServers()).stream()
